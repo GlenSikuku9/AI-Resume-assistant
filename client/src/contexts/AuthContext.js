@@ -8,6 +8,7 @@ import {
   onAuthStateChanged
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import firebaseConfig from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -19,25 +20,36 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Initialize Firebase
-    const firebaseConfig = JSON.parse(process.env.REACT_APP_FIREBASE_CONFIG);
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    try {
+      // Initialize Firebase using the imported configuration
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
 
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // Check if user is admin
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        setIsAdmin(userDoc.data()?.isAdmin || false);
-      }
-      setCurrentUser(user);
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          // Check if user is admin
+          try {
+            const userDoc = await getDoc(doc(db, 'users', user.uid));
+            setIsAdmin(userDoc.data()?.isAdmin || false);
+          } catch (err) {
+            console.error('Error checking admin status:', err);
+            setIsAdmin(false);
+          }
+        }
+        setCurrentUser(user);
+        setLoading(false);
+      });
+
+      return unsubscribe;
+    } catch (err) {
+      console.error('Firebase initialization error:', err);
+      setError(err.message);
       setLoading(false);
-    });
-
-    return unsubscribe;
+    }
   }, []);
 
   // Sign up function
@@ -61,6 +73,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     isAdmin,
+    error,
     signup,
     login,
     logout
@@ -69,6 +82,11 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}
+      {error && (
+        <div className="alert alert-danger" role="alert">
+          {error}
+        </div>
+      )}
     </AuthContext.Provider>
   );
 }

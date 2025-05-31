@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Badge, Spinner } from 'react-bootstrap';
+import { FaLightbulb, FaTags } from 'react-icons/fa';
 import axios from 'axios';
 
 const KeywordSuggestions = ({ jobDescription, section }) => {
@@ -9,7 +10,7 @@ const KeywordSuggestions = ({ jobDescription, section }) => {
 
   useEffect(() => {
     const fetchKeywords = async () => {
-      if (!jobDescription || !section) return;
+      if (!jobDescription) return;
       
       setIsLoading(true);
       setError(null);
@@ -19,6 +20,10 @@ const KeywordSuggestions = ({ jobDescription, section }) => {
           jobDescription,
           section
         });
+        
+        if (response.data.error) {
+          throw new Error(response.data.error);
+        }
         
         setKeywords(response.data.keywords || []);
       } catch (err) {
@@ -34,48 +39,52 @@ const KeywordSuggestions = ({ jobDescription, section }) => {
 
   if (isLoading) {
     return (
-      <div className="text-center p-3">
-        <Spinner animation="border" variant="primary" />
-      </div>
+      <Card className="shadow-sm">
+        <Card.Body className="text-center py-4">
+          <Spinner animation="border" variant="primary" size="sm" />
+          <span className="ms-2">Analyzing job description...</span>
+        </Card.Body>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <Card className="border-danger">
-        <Card.Body className="text-danger">
+      <Card className="shadow-sm border-danger">
+        <Card.Body className="text-danger d-flex align-items-center">
+          <FaLightbulb className="me-2" />
           {error}
         </Card.Body>
       </Card>
     );
   }
 
+  if (!keywords.length) {
+    return null;
+  }
+
   return (
-    <Card>
-      <Card.Header>
-        <h6 className="mb-0">Suggested Keywords for {section}</h6>
+    <Card className="shadow-sm">
+      <Card.Header className="bg-white py-3">
+        <div className="d-flex align-items-center">
+          <FaTags className="me-2 text-primary" size={20} />
+          <h5 className="mb-0">Suggested Keywords</h5>
+        </div>
       </Card.Header>
       <Card.Body>
-        {keywords.length > 0 ? (
-          <div className="d-flex flex-wrap gap-2">
-            {keywords.map((keyword, index) => (
-              <Badge 
-                key={index} 
-                bg="primary" 
-                className="p-2"
-                style={{ cursor: 'pointer' }}
-                title="Click to copy"
-                onClick={() => navigator.clipboard.writeText(keyword)}
-              >
-                {keyword}
-              </Badge>
-            ))}
-          </div>
-        ) : (
-          <p className="text-muted mb-0">
-            No keywords available. Try updating your job description.
-          </p>
-        )}
+        <div className="d-flex flex-wrap gap-2">
+          {keywords.map((keyword, index) => (
+            <Badge
+              key={index}
+              bg="light"
+              text="dark"
+              className="py-2 px-3 border"
+              style={{ fontSize: '0.9em' }}
+            >
+              {keyword}
+            </Badge>
+          ))}
+        </div>
       </Card.Body>
     </Card>
   );

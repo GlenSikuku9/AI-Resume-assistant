@@ -1,11 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
-import { Button, Form, Card } from 'react-bootstrap';
+import { Button, Form, Card, Alert, InputGroup } from 'react-bootstrap';
+import { FaPaperPlane, FaRobot, FaUser } from 'react-icons/fa';
 
 const AIChat = ({ resumeId, onUpdateSection }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
@@ -21,27 +23,34 @@ const AIChat = ({ resumeId, onUpdateSection }) => {
     setInput('');
     setMessages(prev => [...prev, { type: 'user', content: userMessage }]);
     setIsLoading(true);
+    setError('');
 
     try {
       const response = await axios.post('/api/ai/edit-section', {
         resumeId,
         instruction: userMessage,
-        section: 'current', // This should be dynamically set based on selected section
+        section: 'current' // This will be determined by the AI based on the instruction
       });
+
+      if (response.data.error) {
+        throw new Error(response.data.error);
+      }
 
       setMessages(prev => [...prev, { 
         type: 'ai', 
-        content: response.data.content,
-        suggestions: response.data.suggestions 
+        content: response.data.message,
+        suggestions: response.data.suggestions,
+        changes: response.data.changes
       }]);
 
-      if (response.data.content) {
-        onUpdateSection(response.data.content);
+      if (response.data.updatedContent) {
+        onUpdateSection(response.data.updatedContent);
       }
     } catch (error) {
+      setError(error.message || 'Failed to process your request');
       setMessages(prev => [...prev, { 
         type: 'error', 
-        content: 'Sorry, there was an error processing your request.' 
+        content: error.message || 'Sorry, there was an error processing your request.' 
       }]);
     } finally {
       setIsLoading(false);
@@ -49,52 +58,104 @@ const AIChat = ({ resumeId, onUpdateSection }) => {
   };
 
   return (
-    <div className="ai-chat-panel">
-      <div className="chat-messages" style={{ height: '400px', overflowY: 'auto' }}>
-        {messages.map((message, index) => (
-          <Card 
-            key={index} 
-            className={`mb-2 ${message.type === 'user' ? 'ms-auto' : 'me-auto'}`}
-            style={{ maxWidth: '80%' }}
-          >
-            <Card.Body className={message.type === 'error' ? 'text-danger' : ''}>
-              {message.content}
-              {message.suggestions && (
-                <div className="mt-2">
-                  <strong>Suggested Keywords:</strong>
-                  <ul className="mb-0">
-                    {message.suggestions.map((suggestion, idx) => (
-                      <li key={idx}>{suggestion}</li>
-                    ))}
-                  </ul>
+    <Card className="shadow-sm">
+      <Card.Header className="bg-white py-3">
+        <div className="d-flex align-items-center">
+          <FaRobot className="me-2 text-primary" size={20} />
+          <h5 className="mb-0">AI Assistant</h5>
+        </div>
+      </Card.Header>
+      
+      <Card.Body className="p-3">
+        {error && (
+          <Alert variant="danger" className="mb-3">
+            {error}
+          </Alert>
+        )}
+        
+        <div className="chat-messages bg-light rounded p-3 mb-3" style={{ height: '400px', overflowY: 'auto' }}>
+          {messages.map((message, index) => (
+            <Card 
+              key={index} 
+              className={`mb-3 border-0 shadow-sm ${
+                message.type === 'user' 
+                  ? 'ms-auto bg-primary text-white' 
+                  : 'me-auto bg-white'
+              }`}
+              style={{ maxWidth: '80%' }}
+            >
+              <Card.Body className="p-3">
+                <div className="d-flex align-items-center mb-2">
+                  {message.type === 'user' ? (
+                    <FaUser className="me-2" size={14} />
+                  ) : (
+                    <FaRobot className="me-2" size={14} />
+                  )}
+                  <small className="fw-bold">
+                    {message.type === 'user' ? 'You' : 'AI Assistant'}
+                  </small>
                 </div>
-              )}
-            </Card.Body>
-          </Card>
-        ))}
-        <div ref={chatEndRef} />
-      </div>
 
-      <Form onSubmit={handleSubmit} className="mt-3">
-        <Form.Group className="d-flex">
-          <Form.Control
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask for improvements or suggestions..."
-            disabled={isLoading}
-          />
-          <Button 
-            type="submit" 
-            variant="primary" 
-            className="ms-2"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Processing...' : 'Send'}
-          </Button>
-        </Form.Group>
-      </Form>
-    </div>
+                <div className="message-content">
+                  {message.content}
+                </div>
+                
+                {message.suggestions && (
+                  <div className="mt-3 suggestions bg-light rounded p-2">
+                    <strong className="d-block mb-2">Suggested Keywords:</strong>
+                    <div className="d-flex flex-wrap gap-2">
+                      {message.suggestions.map((suggestion, idx) => (
+                        <span 
+                          key={idx}
+                          className="badge bg-white text-dark border"
+                        >
+                          {suggestion}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {message.changes && (
+                  <div className="mt-3 changes bg-light rounded p-2">
+                    <strong className="d-block mb-2">Changes Made:</strong>
+                    <small className="text-muted">
+                      {message.changes}
+                    </small>
+                  </div>
+                )}
+              </Card.Body>
+            </Card>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
+
+        <Form onSubmit={handleSubmit}>
+          <InputGroup>
+            <Form.Control
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask for specific improvements (e.g., 'Strengthen my Python experience')"
+              disabled={isLoading}
+              className="border-end-0"
+            />
+            <Button 
+              type="submit" 
+              variant="primary" 
+              disabled={isLoading || !input.trim()}
+              className="d-flex align-items-center"
+            >
+              {isLoading ? (
+                <span className="spinner-border spinner-border-sm" />
+              ) : (
+                <FaPaperPlane />
+              )}
+            </Button>
+          </InputGroup>
+        </Form>
+      </Card.Body>
+    </Card>
   );
 };
 
