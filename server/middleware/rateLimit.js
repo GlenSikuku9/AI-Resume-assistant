@@ -1,0 +1,13 @@
+const { checkRateLimit } = require('../utils/aiHelpers');
+
+const rateLimitMiddleware = (req, res, next) => {
+  const userId = req.body.userId;
+  
+  if (!checkRateLimit(userId)) {
+    return res.status(429).json({ error: 'Rate limit exceeded' });
+  }
+  
+  next();
+};
+
+module.exports = rateLimitMiddleware; 
