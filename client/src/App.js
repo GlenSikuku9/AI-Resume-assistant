@@ -14,6 +14,7 @@ import AdminDashboard from './components/admin/AdminDashboard';
 import TemplateSelection from './components/resume/TemplateSelection';
 import JobForm from './components/resume/JobForm';
 import ProfileForm from './components/resume/ProfileForm';
+import LandingPage from './components/LandingPage';
 
 // Context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -34,16 +35,17 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <div className="App">
+        <div className="app">
           <Navigation />
-          <main className="container py-4">
+          <main className="main-content">
             <Routes>
               {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
 
               {/* Protected Routes */}
-              <Route path="/" element={
+              <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <Dashboard />
                 </ProtectedRoute>

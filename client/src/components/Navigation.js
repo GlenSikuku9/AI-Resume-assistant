@@ -2,6 +2,7 @@ import React from 'react';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import './Navigation.css';
 
 function Navigation() {
   const { currentUser, isAdmin, logout } = useAuth();
@@ -17,7 +18,7 @@ function Navigation() {
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="mb-4">
+    <Navbar bg="dark" variant="dark" expand="lg" className="custom-navbar">
       <Container>
         <Navbar.Brand as={Link} to="/">AI Resume Assistant</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -25,7 +26,7 @@ function Navigation() {
           <Nav className="me-auto">
             {currentUser && (
               <>
-                <Nav.Link as={Link} to="/templates">Templates</Nav.Link>
+                <Nav.Link as={Link} to="/templates">Create Resume</Nav.Link>
                 <Nav.Link as={Link} to="/job-form">Job Description</Nav.Link>
                 <Nav.Link as={Link} to="/profile-form">Profile</Nav.Link>
               </>
@@ -37,6 +38,7 @@ function Navigation() {
                 {isAdmin && (
                   <Nav.Link as={Link} to="/admin">Admin Dashboard</Nav.Link>
                 )}
+                <span className="welcome-text">Welcome, {currentUser.name || 'User'}</span>
                 <Nav.Link onClick={handleLogout}>Logout</Nav.Link>
               </>
             ) : (

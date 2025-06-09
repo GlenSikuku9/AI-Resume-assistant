@@ -1,0 +1,150 @@
+.auth-container {
+  min-height: calc(100vh - 76px);
+  background: linear-gradient(135deg, #ffffff 0%, #e0eafc 100%);
+  padding: 3rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 3rem;
+  width: 100%;
+  max-width: 600px;
+  backdrop-filter: blur(10px);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.auth-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.auth-header p {
+  color: #6c757d;
+  font-size: 1.2rem;
+}
+
+.auth-form .form-label {
+  font-weight: 500;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+}
+
+.auth-form .form-control {
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  padding: 1rem 1.25rem;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  height: auto;
+}
+
+.auth-form .form-control:focus {
+  border-color: #1a73e8;
+  box-shadow: 0 0 0 0.2rem rgba(26, 115, 232, 0.25);
+}
+
+.auth-form .form-text {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+}
+
+.auth-button {
+  width: 100%;
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: 500;
+  background: #1a73e8;
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+  margin-top: 2rem;
+  text-transform: none;
+}
+
+.auth-button:hover {
+  background: #1557b0;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+}
+
+.auth-button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.auth-link {
+  text-align: center;
+  margin-top: 2rem;
+  color: #6c757d;
+  font-size: 1.1rem;
+}
+
+.auth-link a {
+  color: #1a73e8;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.auth-link a:hover {
+  color: #1557b0;
+  text-decoration: underline;
+}
+
+.auth-alert {
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .auth-container {
+    padding: 2rem 1rem;
+  }
+  
+  .auth-card {
+    padding: 2rem;
+    max-width: 100%;
+  }
+  
+  .auth-header h2 {
+    font-size: 2.2rem;
+  }
+
+  .auth-form .form-control {
+    padding: 0.875rem 1rem;
+    font-size: 1rem;
+  }
+
+  .auth-button {
+    padding: 0.875rem;
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .auth-container {
+    padding: 4rem 0;
+  }
+  
+  .auth-card {
+    max-width: 700px;
+  }
+} 

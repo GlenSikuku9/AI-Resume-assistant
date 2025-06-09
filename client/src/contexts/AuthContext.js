@@ -31,16 +31,29 @@ export function AuthProvider({ children }) {
 
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         if (user) {
-          // Check if user is admin
           try {
+            // Get user data from Firestore
             const userDoc = await getDoc(doc(db, 'users', user.uid));
-            setIsAdmin(userDoc.data()?.isAdmin || false);
+            const userData = userDoc.data();
+            
+            // Create a user object with both auth and Firestore data
+            const userWithData = {
+              ...user,
+              name: userData?.name || 'User',
+              isAdmin: userData?.isAdmin || false
+            };
+            
+            setCurrentUser(userWithData);
+            setIsAdmin(userData?.isAdmin || false);
           } catch (err) {
-            console.error('Error checking admin status:', err);
+            console.error('Error fetching user data:', err);
+            setCurrentUser(user);
             setIsAdmin(false);
           }
+        } else {
+          setCurrentUser(null);
+          setIsAdmin(false);
         }
-        setCurrentUser(user);
         setLoading(false);
       });
 
@@ -61,7 +74,20 @@ export function AuthProvider({ children }) {
   // Login function
   const login = async (email, password) => {
     const auth = getAuth();
-    return signInWithEmailAndPassword(auth, email, password);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+    
+    // Get user data from Firestore
+    const db = getFirestore();
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    const userData = userDoc.data();
+    
+    // Return user with Firestore data
+    return {
+      ...user,
+      name: userData?.name || 'User',
+      isAdmin: userData?.isAdmin || false
+    };
   };
 
   // Logout function
