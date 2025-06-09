@@ -1,0 +1,154 @@
+.profile-form-container {
+  min-height: calc(100vh - 76px);
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  padding: 3rem 0;
+}
+
+.profile-form-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.profile-form-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #4a148c;
+  margin-bottom: 1rem;
+}
+
+.profile-form-header p {
+  color: #455a64;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.profile-form-section {
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.profile-form-section h3 {
+  font-family: 'Playfair Display', serif;
+  color: #4a148c;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+}
+
+.profile-form-section .form-label {
+  font-weight: 500;
+  color: #4a148c;
+  margin-bottom: 0.5rem;
+}
+
+.profile-form-section .form-control {
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+}
+
+.profile-form-section .form-control:focus {
+  border-color: #7b1fa2;
+  box-shadow: 0 0 0 0.2rem rgba(123, 31, 162, 0.25);
+}
+
+.profile-form-section textarea.form-control {
+  min-height: 120px;
+}
+
+.experience-item, .education-item {
+  background: #f8f9fa;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid #e0e0e0;
+}
+
+.experience-item h4, .education-item h4 {
+  color: #4a148c;
+  margin-bottom: 1rem;
+}
+
+.add-item-button {
+  background: #7b1fa2;
+  border: none;
+  border-radius: 25px;
+  padding: 0.75rem 1.5rem;
+  color: white;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-item-button:hover {
+  background: #6a1b9a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(123, 31, 162, 0.3);
+}
+
+.remove-item-button {
+  color: #dc3545;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.remove-item-button:hover {
+  color: #c82333;
+  transform: scale(1.1);
+}
+
+.profile-form-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.profile-form-actions .btn {
+  padding: 0.75rem 2rem;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.profile-form-actions .btn-primary {
+  background: #7b1fa2;
+  border: none;
+}
+
+.profile-form-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(123, 31, 162, 0.3);
+}
+
+.profile-form-actions .btn-outline-secondary {
+  border-color: #78909c;
+  color: #78909c;
+}
+
+.profile-form-actions .btn-outline-secondary:hover {
+  background: #78909c;
+  color: white;
+  transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+  .profile-form-container {
+    padding: 2rem 0;
+  }
+  
+  .profile-form-header h2 {
+    font-size: 2rem;
+  }
+  
+  .profile-form-section {
+    padding: 1.5rem;
+  }
+} 

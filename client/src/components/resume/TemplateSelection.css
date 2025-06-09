@@ -1,0 +1,124 @@
+.template-selection-container {
+  min-height: calc(100vh - 76px); /* Subtract navbar height */
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  padding: 3rem 0;
+}
+
+.template-selection-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.template-selection-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.template-selection-header p {
+  color: #6c757d;
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.template-card {
+  background: white;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  height: 100%;
+}
+
+.template-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.template-card.selected {
+  border-color: #1a73e8;
+}
+
+.template-card .card-img-top {
+  height: 250px;
+  object-fit: cover;
+  border-bottom: 1px solid #eee;
+}
+
+.template-card .card-body {
+  padding: 1.5rem;
+}
+
+.template-card .card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: #2c3e50;
+  margin-bottom: 0.75rem;
+}
+
+.template-card .card-text {
+  color: #6c757d;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+}
+
+.template-card .ats-score {
+  background: #e8f0fe;
+  color: #1a73e8;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.template-card .select-button {
+  padding: 0.5rem 1.5rem;
+  border-radius: 25px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.template-card .select-button.selected {
+  background-color: #1a73e8;
+  border-color: #1a73e8;
+}
+
+.continue-button-container {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.continue-button {
+  padding: 0.75rem 2.5rem;
+  font-size: 1.1rem;
+  border-radius: 30px;
+  background: #1a73e8;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.continue-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+}
+
+.continue-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .template-selection-container {
+    padding: 2rem 0;
+  }
+  
+  .template-selection-header h2 {
+    font-size: 2rem;
+  }
+  
+  .template-card .card-img-top {
+    height: 200px;
+  }
+} 

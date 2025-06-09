@@ -1,0 +1,15 @@
+.app {
+  overflow-x: hidden;
+}
+
+.main-content {
+  padding: 0;
+  margin: 0;
+}
+
+/* Remove any default margins and paddings */
+body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+} 

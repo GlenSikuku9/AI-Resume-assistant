@@ -1,0 +1,45 @@
+.editor-container {
+  background-color: white;
+}
+
+.editor-container .quill {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-container .ql-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-messages {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.2);
+  border-radius: 3px;
+}
+
+.chat-messages .card {
+  transition: transform 0.2s;
+}
+
+.chat-messages .card:hover {
+  transform: translateY(-1px);
+}
+
+.suggestions .badge:hover {
+  cursor: pointer;
+  background-color: #e9ecef !important;
+} 
