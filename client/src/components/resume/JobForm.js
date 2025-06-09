@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Alert, Container } from 'react-bootstrap';
+import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './JobForm.css';
-
 function JobForm() {
   const [jobData, setJobData] = useState({
     title: '',
@@ -55,93 +54,99 @@ function JobForm() {
   };
 
   return (
-    <div className="job-form-container">
-      <Container>
-        <div className="job-form-header">
-          <h2>Job Description</h2>
-          <p>Enter the details of the job you're applying for to help us tailor your resume</p>
-        </div>
-
-        {error && <Alert variant="danger">{error}</Alert>}
-
-        <Card className="job-form-card">
+    <div className="d-flex justify-content-center">
+      <Card style={{ width: '800px' }}>
+        <Card.Body>
+          <h2 className="text-center mb-4">Job Details</h2>
+          {error && <Alert variant="danger">{error}</Alert>}
+          
           <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-4">
+            <Form.Group className="mb-3" controlId="title">
               <Form.Label>Job Title</Form.Label>
               <Form.Control
                 type="text"
                 name="title"
                 value={jobData.title}
                 onChange={handleChange}
-                placeholder="e.g., Senior Software Engineer"
                 required
+                placeholder="e.g., Senior Software Engineer"
               />
             </Form.Group>
 
-            <Form.Group className="mb-4">
+            <Form.Group className="mb-3" controlId="company">
               <Form.Label>Company Name</Form.Label>
               <Form.Control
                 type="text"
                 name="company"
                 value={jobData.company}
                 onChange={handleChange}
-                placeholder="e.g., Tech Company Inc."
                 required
+                placeholder="e.g., Tech Corp Inc."
               />
             </Form.Group>
 
-            <Form.Group className="mb-4">
+            <Form.Group className="mb-3" controlId="description">
               <Form.Label>Job Description</Form.Label>
               <Form.Control
                 as="textarea"
+                rows={4}
                 name="description"
                 value={jobData.description}
                 onChange={handleChange}
-                placeholder="Paste the job description here..."
                 required
+                placeholder="Paste the full job description here"
               />
             </Form.Group>
 
-            <Form.Group className="mb-4">
-              <Form.Label>Key Requirements</Form.Label>
+            <Form.Group className="mb-3" controlId="requirements">
+              <Form.Label>Requirements</Form.Label>
               <Form.Control
                 as="textarea"
+                rows={4}
                 name="requirements"
                 value={jobData.requirements}
                 onChange={handleChange}
-                placeholder="List the key requirements..."
+                required
+                placeholder="List the job requirements"
               />
               <Form.Text className="text-muted">
-                Separate requirements with commas or new lines
+                Separate each requirement with a new line
               </Form.Text>
             </Form.Group>
 
-            <Form.Group className="mb-4">
-              <Form.Label>Responsibilities</Form.Label>
+            <Form.Group className="mb-3" controlId="responsibilities">
+              <Form.Label>Key Responsibilities</Form.Label>
               <Form.Control
                 as="textarea"
+                rows={4}
                 name="responsibilities"
                 value={jobData.responsibilities}
                 onChange={handleChange}
-                placeholder="List the main responsibilities..."
-              />
-            </Form.Group>
-
-            <Form.Group className="mb-4">
-              <Form.Label>Key Skills</Form.Label>
-              <Form.Control
-                as="textarea"
-                name="keySkills"
-                value={jobData.keySkills}
-                onChange={handleChange}
-                placeholder="List the required skills..."
+                required
+                placeholder="List the key responsibilities"
               />
               <Form.Text className="text-muted">
-                Separate skills with commas or new lines
+                Separate each responsibility with a new line
               </Form.Text>
             </Form.Group>
 
-            <div className="job-form-actions">
+            <Form.Group className="mb-3" controlId="keySkills">
+              <Form.Label>Required Skills</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={3}
+                name="keySkills"
+                value={jobData.keySkills}
+                onChange={handleChange}
+                required
+                placeholder="List the required skills"
+              />
+              <Form.Text className="text-muted">
+                Separate skills with commas (e.g., Python, React, AWS)
+              </Form.Text>
+            </Form.Group>
+
+            <div className="d-flex justify-content-between">
               <Button
                 variant="outline-secondary"
                 onClick={() => navigate('/templates')}
@@ -157,8 +162,8 @@ function JobForm() {
               </Button>
             </div>
           </Form>
-        </Card>
-      </Container>
+        </Card.Body>
+      </Card>
     </div>
   );
 }
