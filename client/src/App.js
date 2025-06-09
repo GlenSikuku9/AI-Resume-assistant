@@ -6,15 +6,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Components
 import Navigation from './components/Navigation';
-import Login from './components/auth/Login';
-import Register from './components/auth/Register';
-import Dashboard from './components/Dashboard';
-import ResumeEditor from './components/resume/ResumeEditor';
-import AdminDashboard from './components/admin/AdminDashboard';
-import TemplateSelection from './components/resume/TemplateSelection';
-import JobForm from './components/resume/JobForm';
-import ProfileForm from './components/resume/ProfileForm';
-import LandingPage from './components/LandingPage';
+import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
+import Dashboard from './pages/admin/Dashboard';
+import ResumeEditor from './pages/resume/ResumeEditor';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import TemplateSelection from './pages/resume/TemplateSelection';
+import JobForm from './pages/resume/JobForm';
+import ProfileForm from './pages/resume/ProfileForm';
+import LandingPage from './pages/LandingPage';
 
 // Context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
