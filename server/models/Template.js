@@ -1,16 +1,35 @@
 const mongoose = require('mongoose');
 
+const sectionSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    enum: [
+      'contact',
+      'summary',
+      'skills',
+      'experience',
+      'education',
+      'certifications',
+      'projects',
+      'volunteering',
+      'references'
+    ]
+  },
+  required: {
+    type: Boolean,
+    default: false
+  },
+  maxItems: Number
+});
+
 const templateSchema = new mongoose.Schema({
-  id: {
+  name: {
     type: String,
     required: true,
     unique: true
   },
-  name: {
-    type: String,
-    required: true
-  },
-  resumeFormat: {
+  category: {
     type: String,
     enum: ['skills-focused', 'balanced-combination', 'timeline-driven'],
     required: true
@@ -19,74 +38,36 @@ const templateSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  previewImage: {
-    type: String, // URL to the template preview image
-    required: true
+  previewImage: String,
+  sections: [sectionSchema],
+  defaultOrder: {
+    type: [String],
+    validate: {
+      validator: function(order) {
+        return this.sections.every(s => order.includes(s.name));
+      },
+      message: 'Default order must include all sections'
+    }
   },
-  sections: [{
-    type: String,
-    enum: [
-      'contact',
-      'summary',
-      'skills',
-      'experience',
-      'education',
-      'certifications',
-      'accomplishments',
-      'volunteering',
-      'references',
-      'hobbies'
-    ]
-  }],
-  defaultOrder: [{
-    type: String,
-    enum: [
-      'contact',
-      'summary',
-      'skills',
-      'experience',
-      'education',
-      'certifications',
-      'accomplishments',
-      'volunteering',
-      'references',
-      'hobbies'
-    ]
-  }],
-  userCustomizable: {
-    type: Boolean,
-    default: true
+  styling: {
+    fontFamily: String,
+    primaryColor: String,
+    spacing: String
   },
-  recommendedFor: [{
-    type: String
-  }],
   isActive: {
     type: Boolean,
     default: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+}, { timestamps: true });
 
-// Indexes
-templateSchema.index({ id: 1 });
-templateSchema.index({ resumeFormat: 1 });
-templateSchema.index({ isActive: 1 });
-
-// Static method to get all active templates
-templateSchema.statics.getActiveTemplates = function () {
-  return this.find({ isActive: true })
-    .select('id name resumeFormat description previewImage recommendedFor defaultOrder')
-    .lean();
+// Query helpers
+templateSchema.query.active = function() {
+  return this.where({ isActive: true });
 };
 
-// Static method to get template by ID
-templateSchema.statics.getTemplateById = function (templateId) {
-  return this.findOne({ id: templateId, isActive: true }).lean();
+templateSchema.query.byCategory = function(category) {
+  return this.where({ category });
 };
 
-const Template = mongoose.model('Template', templateSchema);
+module.exports = mongoose.model('Template', templateSchema);
 
-module.exports = Template;
