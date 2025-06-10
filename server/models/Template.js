@@ -10,9 +10,9 @@ const templateSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  type: {
+  resumeFormat: {
     type: String,
-    enum: ['functional', 'hybrid', 'chronological'],
+    enum: ['skills-focused', 'balanced-combination', 'timeline-driven'],
     required: true
   },
   description: {
@@ -20,66 +20,39 @@ const templateSchema = new mongoose.Schema({
     required: true
   },
   previewImage: {
-    type: String,  // URL to the template preview image
+    type: String, // URL to the template preview image
     required: true
   },
-  defaultSections: [{
+  sections: [{
     type: String,
     enum: [
       'contact',
-      'careerSummary',
-      'skillsAndStrengths',
-      'professionalAccomplishments',
-      'workHistory',
-      'education',
-      'profileSummary',
-      'skillsAndAccomplishments',
-      'workExperience',
-      'headline',
-      'topSkills'
-    ]
-  }],
-  editableSections: [{
-    type: String,
-    enum: [
-      'contact',
-      'careerSummary',
-      'skillsAndStrengths',
-      'professionalAccomplishments',
-      'workHistory',
+      'summary',
+      'skills',
+      'experience',
       'education',
       'certifications',
+      'accomplishments',
       'volunteering',
-      'portfolio',
-      'profileSummary',
-      'skillsAndAccomplishments',
-      'workExperience',
       'references',
-      'hobbies',
-      'headline',
-      'topSkills'
+      'hobbies'
     ]
   }],
-  layoutOptions: {
-    theme: [{
-      type: String,
-      enum: ['light', 'dark']
-    }],
-    fontFamily: [{
-      type: String
-    }],
-    accentColors: [{
-      type: String
-    }],
-    columnLayout: {
-      leftColumn: [{
-        type: String
-      }],
-      rightColumn: [{
-        type: String
-      }]
-    }
-  },
+  defaultOrder: [{
+    type: String,
+    enum: [
+      'contact',
+      'summary',
+      'skills',
+      'experience',
+      'education',
+      'certifications',
+      'accomplishments',
+      'volunteering',
+      'references',
+      'hobbies'
+    ]
+  }],
   userCustomizable: {
     type: Boolean,
     default: true
@@ -97,23 +70,23 @@ const templateSchema = new mongoose.Schema({
   }
 });
 
-// Create indexes for faster queries
+// Indexes
 templateSchema.index({ id: 1 });
-templateSchema.index({ type: 1 });
+templateSchema.index({ resumeFormat: 1 });
 templateSchema.index({ isActive: 1 });
 
 // Static method to get all active templates
-templateSchema.statics.getActiveTemplates = function() {
+templateSchema.statics.getActiveTemplates = function () {
   return this.find({ isActive: true })
-    .select('id name type description previewImage recommendedFor')
+    .select('id name resumeFormat description previewImage recommendedFor defaultOrder')
     .lean();
 };
 
 // Static method to get template by ID
-templateSchema.statics.getTemplateById = function(templateId) {
+templateSchema.statics.getTemplateById = function (templateId) {
   return this.findOne({ id: templateId, isActive: true }).lean();
 };
 
 const Template = mongoose.model('Template', templateSchema);
 
-module.exports = Template; 
+module.exports = Template;
