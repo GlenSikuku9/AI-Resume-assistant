@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const userAnalyticsSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserInfo',
+    ref: 'User',  // Updated reference
     required: true,
     unique: true
   },

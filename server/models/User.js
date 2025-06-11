@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+  password: {
+    type: String, // Optional, used only if user sets password
+    default: ''
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],
@@ -32,5 +36,4 @@ const userSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', userSchema);
-
-module.exports = User; 
+module.exports = User;
