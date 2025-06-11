@@ -11,10 +11,6 @@ const aiChatSchema = new mongoose.Schema({
     ref: 'Resume',
     required: true
   },
-  jobDescription: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'JobDescription'
-  },
   messages: [{
     sender: {
       type: String,
