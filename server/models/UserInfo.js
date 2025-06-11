@@ -44,8 +44,8 @@ const userInfoSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
-    unique: true
+    required: true
+    // Allows multiple UserInfos per User
   },
   contact: {
     name: String,
@@ -67,7 +67,7 @@ const userInfoSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-// Update meta on save
+// Auto-update meta
 userInfoSchema.pre('save', function(next) {
   this.meta.lastUpdated = new Date();
   next();

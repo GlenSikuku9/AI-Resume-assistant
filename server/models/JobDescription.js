@@ -13,13 +13,19 @@ const jobDescriptionSchema = new mongoose.Schema({
     type: String 
   },
   requirements: { 
-    type: [String]  // Array of bullet points
+    type: [String]  
   },
   responsibilities: { 
     type: [String] 
   },
   keySkills: { 
-    type: [String]  // Keywords for ATS
+    type: [String] 
+  },
+  resume: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Resume',
+    required: true,
+    unique: true // one-to-one relationship with a Resume
   },
   createdAt: { 
     type: Date, 
@@ -28,5 +34,4 @@ const jobDescriptionSchema = new mongoose.Schema({
 });
 
 const JobDescription = mongoose.model('JobDescription', jobDescriptionSchema);
-
-module.exports = JobDescription; 
+module.exports = JobDescription;

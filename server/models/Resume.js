@@ -6,6 +6,18 @@ const resumeSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  userInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserInfo',
+    required: true,
+    unique: true  // Ensures 1:1 between Resume and UserInfo
+  },
+  jobDescription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'JobDescription',
+    required: true,
+    unique: true  // Ensures 1:1 between Resume and JobDescription
+  },
   template: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Template',
@@ -21,7 +33,6 @@ const resumeSchema = new mongoose.Schema({
       required: true
     },
     content: {
-      // Dynamic sections based on template
       sections: {
         type: Map,
         of: mongoose.Mixed
@@ -48,7 +59,7 @@ resumeSchema.pre('save', async function(next) {
   if (this.isNew) {
     const template = await mongoose.model('Template').findById(this.template);
     if (!template) throw new Error('Invalid template reference');
-    
+
     this.versions = [{
       versionNumber: 1,
       content: { sections: new Map() },
