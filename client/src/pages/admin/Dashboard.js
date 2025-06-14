@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Row, Col, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, collection, query, where, getDocs } from 'firebase/firestore';
 import { FaFileAlt, FaPlus } from 'react-icons/fa';
 
