@@ -1,16 +1,14 @@
 const mongoose = require('mongoose');
 
-const professionalSocialSchema = new mongoose.Schema({
+const socialLinkSchema = new mongoose.Schema({
   platform: String,
-  username: String
+  url: String
 });
 
 const educationSchema = new mongoose.Schema({
-  institution: { 
-    type: String, 
-    required: true 
-  },
+  institution: String,
   degree: String,
+  fieldOfStudy: String,
   startDate: Date,
   endDate: Date,
   gpa: String,
@@ -18,87 +16,61 @@ const educationSchema = new mongoose.Schema({
 });
 
 const experienceSchema = new mongoose.Schema({
-  company: { 
-    type: String, 
-    required: true 
-  },
+  company: String,
   position: String,
   location: String,
   startDate: Date,
   endDate: Date,
-  current: { 
-    type: Boolean, 
-    default: false 
-  },
-  description: [String] // Bullet points
+  current: Boolean,
+  description: [String]
 });
 
 const languageSchema = new mongoose.Schema({
   name: String,
-  proficiency: { 
-    type: String, 
-    enum: ['basic', 'business-proficient', 'fluent']
+  proficiency: {
+    type: String,
+    enum: ['basic', 'intermediate', 'fluent', 'native']
   }
 });
 
-const certificateSchema = new mongoose.Schema({
+const certificationSchema = new mongoose.Schema({
   name: String,
-  completionDate: Date,
-  skillsLearned: [String]
-});
-
-const volunteeringSchema = new mongoose.Schema({
-  name: String,
-  period: String,
-  description: String
-});
-
-const referenceSchema = new mongoose.Schema({
-  name: String,
-  email: String,
-  phone: String,
-  institution: String,
-  relationship: String
+  issuer: String,
+  date: Date,
+  skills: [String]
 });
 
 const userInfoSchema = new mongoose.Schema({
-  // 1. Personal Info
-  personalInfo: {
-    name: { 
-      type: String, 
-      required: true 
-    },
-    email: { 
-      type: String, 
-      required: true, 
-      unique: true 
-    },
-    phone: String,
-    professionalSocials: [professionalSocialSchema]
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+    // Allows multiple UserInfos per User
   },
-
-  // 2. Education
+  contact: {
+    name: String,
+    email: String,
+    phone: String,
+    location: String,
+    links: [socialLinkSchema]
+  },
   education: [educationSchema],
-
-  // 3. Experience
   experience: [experienceSchema],
-
-  // 4. Skills
   skills: {
     technical: [String],
     soft: [String],
     languages: [languageSchema],
-    certificates: [certificateSchema]
+    certifications: [certificationSchema]
   },
-
-  // 5. Additional Information
-  additionalInfo: {
-    volunteering: [volunteeringSchema],
-    hobbies: [String],
-    references: [referenceSchema]
+  meta: {
+    lastUpdated: Date
   }
+}, { timestamps: true });
+
+// Auto-update meta
+userInfoSchema.pre('save', function(next) {
+  this.meta.lastUpdated = new Date();
+  next();
 });
 
-const UserInfo = mongoose.model('UserInfo', userInfoSchema);
-
-module.exports = UserInfo; 
+module.exports = mongoose.model('UserInfo', userInfoSchema);

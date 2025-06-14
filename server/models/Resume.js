@@ -6,6 +6,23 @@ const resumeSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  userInfo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'UserInfo',
+    required: true,
+    unique: true  // Ensures 1:1 between Resume and UserInfo
+  },
+  jobDescription: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'JobDescription',
+    required: true,
+    unique: true  // Ensures 1:1 between Resume and JobDescription
+  },
+  template: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Template',
+    required: true
+  },
   name: {
     type: String,
     required: true
@@ -16,48 +33,9 @@ const resumeSchema = new mongoose.Schema({
       required: true
     },
     content: {
-      // Personal Information
-      personalInfo: {
-        name: String,
-        email: String,
-        phone: String,
-        professionalSummary: String,
-        location: String,
-        links: [{
-          platform: String,
-          url: String
-        }]
-      },
-      // Education
-      education: [{
-        institution: String,
-        degree: String,
-        fieldOfStudy: String,
-        startDate: Date,
-        endDate: Date,
-        achievements: [String],
-        gpa: String
-      }],
-      // Work Experience
-      experience: [{
-        company: String,
-        position: String,
-        location: String,
-        startDate: Date,
-        endDate: Date,
-        current: Boolean,
-        description: [String]  // Bullet points
-      }],
-      // Skills
-      skills: {
-        technical: [String],
-        soft: [String],
-        tools: [String],
-        certifications: [{
-          name: String,
-          issuer: String,
-          date: Date
-        }]
+      sections: {
+        type: Map,
+        of: mongoose.Mixed
       }
     },
     createdAt: {
@@ -73,26 +51,22 @@ const resumeSchema = new mongoose.Schema({
   lastModified: {
     type: Date,
     default: Date.now
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
   }
-});
+}, { timestamps: true });
 
-// Auto-increment version number
-resumeSchema.pre('save', function(next) {
+// Auto-versioning and template validation
+resumeSchema.pre('save', async function(next) {
   if (this.isNew) {
+    const template = await mongoose.model('Template').findById(this.template);
+    if (!template) throw new Error('Invalid template reference');
+
     this.versions = [{
       versionNumber: 1,
-      content: {},  // Empty content to be filled
-      createdAt: new Date(),
+      content: { sections: new Map() },
       description: 'Initial version'
     }];
   }
   next();
 });
 
-const Resume = mongoose.model('Resume', resumeSchema);
-
-module.exports = Resume; 
+module.exports = mongoose.model('Resume', resumeSchema);

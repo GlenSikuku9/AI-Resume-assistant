@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Alert, Card } from 'react-bootstrap';
-import { useParams } from 'react-router-dom';
+import { Container, Row, Col, Button, Form, Alert } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import AIChat from './AIChat';
-import KeywordSuggestions from './KeywordSuggestions';
-import VersionHistory from './VersionHistory';
-import { FaSave, FaEdit } from 'react-icons/fa';
-import './ResumeEditor.css';
+import html2pdf from 'html2pdf.js';
+import { FaDownload, FaSave } from 'react-icons/fa';
 
 function ResumeEditor() {
   const [resume, setResume] = useState(null);
   const [content, setContent] = useState('');
+  const [aiMessage, setAiMessage] = useState('');
+  const [userMessage, setUserMessage] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [versions, setVersions] = useState([]);
   const { resumeId } = useParams();
   const { currentUser } = useAuth();
+  const navigate = useNavigate();
 
   // Fetch resume data
   useEffect(() => {
@@ -39,7 +38,6 @@ function ResumeEditor() {
 
         setResume(resumeData);
         setContent(resumeData.content || '');
-        setVersions(resumeData.versions || []);
       } catch (error) {
         setError(error.message);
         console.error('Error fetching resume:', error);
@@ -68,11 +66,15 @@ function ResumeEditor() {
 
       await updateDoc(resumeRef, {
         content,
-        versions: [...versions, version],
+        versions: [...(resume.versions || []), version],
         updatedAt: new Date().toISOString()
       });
 
-      setVersions(prev => [...prev, version]);
+      setResume(prev => ({
+        ...prev,
+        content,
+        versions: [...(prev.versions || []), version]
+      }));
     } catch (error) {
       setError('Failed to save resume');
       console.error('Error saving resume:', error);
@@ -81,10 +83,50 @@ function ResumeEditor() {
     }
   };
 
-  // Handle content update from AI suggestions
-  const handleAIUpdate = (updatedContent) => {
-    setContent(updatedContent);
-    handleSave();
+  // Export as PDF
+  const handleExport = () => {
+    const element = document.createElement('div');
+    element.innerHTML = content;
+    
+    const opt = {
+      margin: 1,
+      filename: `${resume.jobDescription?.title || 'resume'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  };
+
+  // Handle AI chat
+  const handleAiChat = async () => {
+    try {
+      setError('');
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/ai/edit-section`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          userId: currentUser.uid,
+          section: 'full',
+          content,
+          instruction: userMessage
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get AI response');
+      }
+
+      setAiMessage(data.text);
+      setUserMessage('');
+    } catch (error) {
+      setError('Failed to get AI response');
+      console.error('AI chat error:', error);
+    }
   };
 
   if (loading) {
@@ -92,84 +134,80 @@ function ResumeEditor() {
   }
 
   return (
-    <Container fluid className="py-4">
-      {error && (
-        <Alert variant="danger" className="mb-4 shadow-sm">
-          <Alert.Heading>Error</Alert.Heading>
-          <p className="mb-0">{error}</p>
-        </Alert>
-      )}
+    <Container fluid>
+      {error && <Alert variant="danger" className="mb-3">{error}</Alert>}
       
-      <Row className="g-4">
-        {/* Left Pane - Rich Text Editor */}
-        <Col md={7}>
-          <Card className="shadow-sm h-100">
-            <Card.Header className="bg-white py-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <h4 className="mb-0">
-                  <FaEdit className="me-2" />
-                  Resume Editor
-                </h4>
-                <Button 
-                  variant="primary" 
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="d-flex align-items-center"
-                >
-                  <FaSave className="me-2" />
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
-            </Card.Header>
-            <Card.Body className="p-0">
-              <div className="editor-container border-0" style={{ height: 'calc(100vh - 280px)' }}>
-                <ReactQuill
-                  theme="snow"
-                  value={content}
-                  onChange={setContent}
-                  style={{ height: 'calc(100% - 42px)' }}
-                  modules={{
-                    toolbar: [
-                      [{ 'header': [1, 2, 3, false] }],
-                      ['bold', 'italic', 'underline', 'strike'],
-                      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                      ['link'],
-                      ['clean']
-                    ]
-                  }}
-                />
-              </div>
-            </Card.Body>
-          </Card>
+      <div className="mb-3 d-flex justify-content-between align-items-center">
+        <h2>{resume.jobDescription?.title || 'Untitled Resume'}</h2>
+        <div>
+          <Button
+            variant="primary"
+            onClick={handleSave}
+            disabled={saving}
+            className="me-2"
+          >
+            <FaSave className="me-2" />
+            {saving ? 'Saving...' : 'Save'}
+          </Button>
+          <Button
+            variant="success"
+            onClick={handleExport}
+          >
+            <FaDownload className="me-2" />
+            Export PDF
+          </Button>
+        </div>
+      </div>
+
+      <Row>
+        {/* Resume Editor */}
+        <Col md={8}>
+          <ReactQuill
+            theme="snow"
+            value={content}
+            onChange={setContent}
+            style={{ height: 'calc(100vh - 200px)' }}
+          />
         </Col>
 
-        {/* Right Pane - AI Chat and Tools */}
-        <Col md={5}>
-          <div className="d-flex flex-column gap-4">
-            {/* Keyword Suggestions */}
-            <div className="keyword-suggestions-wrapper">
-              <KeywordSuggestions 
-                jobDescription={resume.jobDescription} 
-                section="all"
-              />
+        {/* AI Chat Panel */}
+        <Col md={4}>
+          <div className="border rounded p-3" style={{ height: 'calc(100vh - 200px)', display: 'flex', flexDirection: 'column' }}>
+            <h4>AI Assistant</h4>
+            <div 
+              className="flex-grow-1 overflow-auto mb-3 p-2 border rounded"
+              style={{ backgroundColor: '#f8f9fa' }}
+            >
+              {aiMessage && (
+                <div className="mb-2">
+                  <strong>AI:</strong>
+                  <p>{aiMessage}</p>
+                </div>
+              )}
             </div>
-
-            {/* AI Chat Interface */}
-            <div className="ai-chat-wrapper">
-              <AIChat 
-                resumeId={resumeId}
-                onUpdateSection={handleAIUpdate}
-              />
-            </div>
-
-            {/* Version History */}
-            <div className="version-history-wrapper">
-              <VersionHistory 
-                versions={versions}
-                onRestore={setContent}
-                currentVersion={versions.length - 1}
-              />
-            </div>
+            
+            <Form onSubmit={(e) => {
+              e.preventDefault();
+              handleAiChat();
+            }}>
+              <Form.Group className="mb-2">
+                <Form.Control
+                  as="textarea"
+                  rows={3}
+                  value={userMessage}
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  placeholder="Ask the AI to help improve your resume..."
+                />
+              </Form.Group>
+              <Button
+                type="submit"
+                variant="primary"
+                className="w-100"
+                disabled={!userMessage.trim()}
+              >
+                Send
+              </Button>
+            </Form>
           </div>
         </Col>
       </Row>

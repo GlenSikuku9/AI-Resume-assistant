@@ -1,3 +1,6 @@
+<<<<<<< HEAD
+.env
+=======
 # Dependencies
 /node_modules
 /.pnp
@@ -26,3 +29,4 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log* 
+>>>>>>> 3d418f8a77be851b545e1b330f84a020bcc0d1cf
