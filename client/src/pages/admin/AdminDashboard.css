@@ -1,0 +1,118 @@
+.admin-dashboard {
+  padding: 2rem 0;
+}
+
+.dashboard-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.metric-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+}
+
+.metric-card .card-title {
+  color: #6c757d;
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+}
+
+.metric-card h3 {
+  color: #2c3e50;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.metric-card p {
+  font-size: 0.9rem;
+  margin-bottom: 0;
+}
+
+.template-usage-card,
+.recent-activity-card {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  height: 100%;
+}
+
+.template-usage-list {
+  margin-top: 1rem;
+}
+
+.template-usage-item {
+  margin-bottom: 1.5rem;
+}
+
+.template-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.template-name {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.template-count {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.template-bar {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.template-bar-fill {
+  height: 100%;
+  background-color: #1a73e8;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.activity-table {
+  margin-top: 1rem;
+}
+
+.activity-table th {
+  color: #6c757d;
+  font-weight: 500;
+  border-top: none;
+}
+
+.activity-table td {
+  color: #2c3e50;
+  vertical-align: middle;
+}
+
+.badge {
+  padding: 0.5em 0.75em;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+
+  .metric-card {
+    margin-bottom: 1rem;
+  }
+
+  .template-usage-card,
+  .recent-activity-card {
+    margin-bottom: 1rem;
+  }
+} 

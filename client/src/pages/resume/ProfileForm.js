@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -48,16 +48,6 @@ function ProfileForm() {
     languages: '',
     certifications: ''
   });
-
-  useEffect(() => {
-    // Check if previous steps are completed
-    const templateData = sessionStorage.getItem('selectedTemplate');
-    const jobData = sessionStorage.getItem('jobData');
-    
-    if (!templateData || !jobData) {
-      navigate('/templates');
-    }
-  }, [navigate]);
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -137,13 +127,11 @@ function ProfileForm() {
       setError('');
       setLoading(true);
 
-      const templateData = JSON.parse(sessionStorage.getItem('selectedTemplate'));
-      const jobData = JSON.parse(sessionStorage.getItem('jobData'));
+      const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
 
       const db = getFirestore();
       const resumeRef = await addDoc(collection(db, 'resumes'), {
         userId: currentUser.uid,
-        templateId: templateData.id,
         jobDescription: jobData,
         personalInfo,
         education,
@@ -156,7 +144,6 @@ function ProfileForm() {
       });
 
       // Clear session storage
-      sessionStorage.removeItem('selectedTemplate');
       sessionStorage.removeItem('jobData');
 
       // Navigate to editor

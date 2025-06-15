@@ -93,6 +93,11 @@
   margin-top: 2rem;
   color: #6c757d;
   font-size: 1.1rem;
+  padding: 1rem 0;
+}
+
+.auth-link p {
+  margin: 0;
 }
 
 .auth-link a {
@@ -100,6 +105,7 @@
   text-decoration: none;
   font-weight: 500;
   transition: all 0.3s ease;
+  margin-left: 0.5rem;
 }
 
 .auth-link a:hover {
@@ -112,6 +118,30 @@
   margin-bottom: 2rem;
   font-size: 1.1rem;
   padding: 1rem;
+}
+
+.forgot-password {
+  text-align: right;
+}
+
+.forgot-password button {
+  color: #1a73e8;
+  font-size: 1rem;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.forgot-password button:hover {
+  color: #1557b0;
+  text-decoration: underline;
+}
+
+.forgot-password button:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {
