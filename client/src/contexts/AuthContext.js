@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
-  onAuthStateChanged
+  onAuthStateChanged,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { getFirestore, doc, getDoc } from 'firebase/firestore';
 import firebaseConfig from '../config/firebase';
@@ -96,13 +97,20 @@ export function AuthProvider({ children }) {
     return signOut(auth);
   };
 
+  // Reset password function
+  const resetPassword = async (email) => {
+    const auth = getAuth();
+    return sendPasswordResetEmail(auth, email);
+  };
+
   const value = {
     currentUser,
     isAdmin,
     error,
     signup,
     login,
-    logout
+    logout,
+    resetPassword
   };
 
   return (
