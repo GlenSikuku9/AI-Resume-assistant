@@ -1,17 +1,25 @@
-const admin = require('firebase-admin');
-const dotenv = require('dotenv');
+// config/firebase.js
+import admin from 'firebase-admin';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 
-dotenv.config();
+let isInitialized = false;
 
-// Initialize Firebase Admin
-const serviceAccount = JSON.parse(process.env.FIREBASE_CONFIG);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const initializeFirebase = () => {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
+  if (!isInitialized) {
+    const serviceAccountPath = path.join(__dirname, 'ai-resume-assistant-3ca9c-firebase-adminsdk-fbsvc-6eb5ebffdc.json');
+    const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
+
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+
+    isInitialized = true;
+  }
 };
 
-module.exports = {
-  admin,
-  initializeFirebase
-}; 
+export { admin, initializeFirebase };

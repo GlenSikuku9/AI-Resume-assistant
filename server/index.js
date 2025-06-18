@@ -1,4 +1,7 @@
-const express = require('express');
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import { initializeFirebase } from './config/firebase.js';
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const { initializeFirebase } = require('./config/firebase');
