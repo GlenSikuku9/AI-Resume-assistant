@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, addDoc, collection } from 'firebase/firestore';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import profileInfoService from '../../services/profileInfoService';
 import './ProfileForm.css';
 
 function ProfileForm() {
@@ -137,14 +138,27 @@ function ProfileForm() {
       setError('');
       setLoading(true);
 
-      const templateData = JSON.parse(sessionStorage.getItem('selectedTemplate'));
-      const jobData = JSON.parse(sessionStorage.getItem('jobData'));
+      const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
+      const jobInfoId = sessionStorage.getItem('jobInfoId');
 
+      // Save profile information to Firebase
+      const profileData = {
+        personalInfo,
+        education,
+        experience,
+        skills
+      };
+
+      const profileResult = await profileInfoService.createProfileInfo(profileData);
+      
+      // Create resume in Firestore
       const db = getFirestore();
       const resumeRef = await addDoc(collection(db, 'resumes'), {
         userId: currentUser.uid,
         templateId: templateData.id,
         jobDescription: jobData,
+        jobInfoId: jobInfoId, // Link to job info if available
+        profileInfoId: profileResult.id, // Link to profile info
         personalInfo,
         education,
         experience,
@@ -155,14 +169,18 @@ function ProfileForm() {
         updatedAt: new Date().toISOString()
       });
 
-      // Clear session storage
-      sessionStorage.removeItem('selectedTemplate');
+      // Store IDs in session storage for use in editor
+      sessionStorage.setItem('profileInfoId', profileResult.id);
+      sessionStorage.setItem('resumeId', resumeRef.id);
+
+      // Clear job data from session storage
       sessionStorage.removeItem('jobData');
+      sessionStorage.removeItem('jobInfoId');
 
       // Navigate to editor
       navigate(`/editor/${resumeRef.id}`);
     } catch (error) {
-      setError('Failed to create resume');
+      setError(error.message || 'Failed to create resume');
       console.error('Error creating resume:', error);
     } finally {
       setLoading(false);

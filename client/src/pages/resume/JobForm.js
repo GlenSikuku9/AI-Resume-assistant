@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import jobInfoService from '../../services/jobInfoService';
 import './JobForm.css';
 function JobForm() {
   const [jobData, setJobData] = useState({
@@ -40,13 +41,17 @@ function JobForm() {
       setError('');
       setLoading(true);
 
-      // Store job data in session storage
+      // Save job information to Firebase using the service
+      const result = await jobInfoService.createJobInfo(jobData);
+      
+      // Store job ID in session storage for use in ProfileForm
+      sessionStorage.setItem('jobInfoId', result.id);
       sessionStorage.setItem('jobData', JSON.stringify(jobData));
       
       // Navigate to profile form
       navigate('/profile-form');
     } catch (error) {
-      setError('Failed to save job information');
+      setError(error.message || 'Failed to save job information');
       console.error('Error saving job data:', error);
     } finally {
       setLoading(false);
