@@ -3,8 +3,8 @@ initializeFirebase();
 
 const db = admin.firestore();
 
-// Sample job information data
-const sampleJobInfo = {
+// Sample job description data
+const sampleJobDescription = {
   title: 'Senior Software Engineer',
   company: 'Tech Corp Inc.',
   description: 'We are looking for a Senior Software Engineer to join our dynamic team. You will be responsible for developing high-quality software solutions and collaborating with cross-functional teams.',
@@ -41,12 +41,12 @@ const sampleJobInfo = {
   updatedAt: admin.firestore.FieldValue.serverTimestamp()
 };
 
-async function seedJobInfo() {
+async function seedJobDescription() {
   try {
-    const docRef = await db.collection('jobInfo').add(sampleJobInfo);
-    console.log(`✅ Job information seeded with ID: ${docRef.id}`);
+    const docRef = await db.collection('JobDescription').add(sampleJobDescription);
+    console.log(`✅ Job description seeded with ID: ${docRef.id}`);
   } catch (err) {
-    console.error('❌ Failed to seed job information:', err);
+    console.error('❌ Failed to seed job description:', err);
   }
 }
 
@@ -125,15 +125,15 @@ async function seedMultipleJobEntries() {
         updatedAt: admin.firestore.FieldValue.serverTimestamp()
       };
       
-      const docRef = await db.collection('jobInfo').add(jobData);
-      console.log(`✅ Job information seeded with ID: ${docRef.id} for ${jobEntry.title} at ${jobEntry.company}`);
+      const docRef = await db.collection('JobDescription').add(jobData);
+      console.log(`✅ Job description seeded with ID: ${docRef.id} for ${jobEntry.title} at ${jobEntry.company}`);
     } catch (err) {
-      console.error(`❌ Failed to seed job information for ${jobEntry.title}:`, err);
+      console.error(`❌ Failed to seed job description for ${jobEntry.title}:`, err);
     }
   }
 }
 
 // Run the seeding functions
-console.log('🌱 Starting job information seeding...');
-seedJobInfo();
+console.log('🌱 Starting job description seeding...');
+seedJobDescription();
 seedMultipleJobEntries(); 

@@ -3,8 +3,8 @@ initializeFirebase();
 
 const db = admin.firestore();
 
-// Sample profile information data
-const sampleProfileInfo = {
+// Sample job seeker information data
+const sampleJobSeekerInfo = {
   personalInfo: {
     fullName: 'John Smith',
     email: 'john.smith@email.com',
@@ -56,15 +56,15 @@ const sampleProfileInfo = {
   updatedAt: admin.firestore.FieldValue.serverTimestamp()
 };
 
-async function seedProfileInfo() {
+async function seedJobSeekerInfo() {
   try {
-    const docRef = await db.collection('profileInfo').add(sampleProfileInfo);
-    console.log(`✅ Profile information seeded with ID: ${docRef.id}`);
+    const docRef = await db.collection('JobSeekerInfo').add(sampleJobSeekerInfo);
+    console.log(`✅ Job seeker information seeded with ID: ${docRef.id}`);
   } catch (err) {
-    console.error('❌ Failed to seed profile information:', err);
+    console.error('❌ Failed to seed job seeker information:', err);
   }
 }
 
 // Run the seeding function
-console.log('🌱 Starting profile information seeding...');
-seedProfileInfo(); 
+console.log('🌱 Starting job seeker information seeding...');
+seedJobSeekerInfo(); 

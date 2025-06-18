@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge, Modal, Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaEye, FaPlus, FaGraduationCap, FaBriefcase, FaUser } from 'react-icons/fa';
-import profileInfoService from '../services/profileInfoService';
+import jobSeekerInfoService from '../services/profileInfoService';
 import './ProfileInfoList.css';
 
 function ProfileInfoList() {
-  const [profileInfoList, setProfileInfoList] = useState([]);
+  const [jobSeekerInfoList, setJobSeekerInfoList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -32,14 +32,14 @@ function ProfileInfoList() {
   });
 
   useEffect(() => {
-    fetchProfileInfoList();
+    fetchJobSeekerInfoList();
   }, []);
 
-  const fetchProfileInfoList = async () => {
+  const fetchJobSeekerInfoList = async () => {
     try {
       setLoading(true);
-      const data = await profileInfoService.getProfileInfoList();
-      setProfileInfoList(data);
+      const data = await jobSeekerInfoService.getJobSeekerInfoList();
+      setJobSeekerInfoList(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -66,32 +66,59 @@ function ProfileInfoList() {
   };
 
   const handleDeleteProfile = async (profileId) => {
-    if (window.confirm('Are you sure you want to delete this profile information?')) {
+    if (window.confirm('Are you sure you want to delete this job seeker information?')) {
       try {
-        await profileInfoService.deleteProfileInfo(profileId);
-        await fetchProfileInfoList();
+        await jobSeekerInfoService.deleteJobSeekerInfo(profileId);
+        await fetchJobSeekerInfoList();
       } catch (error) {
         setError(error.message);
       }
     }
   };
 
-  const handleFormChange = (section, field, value, index = null) => {
-    if (index !== null) {
-      // Handle array fields (education, experience)
-      setFormData(prev => ({
-        ...prev,
-        [section]: prev[section].map((item, i) => 
-          i === index ? { ...item, [field]: value } : item
-        )
-      }));
-    } else if (section === 'personalInfo' || section === 'skills') {
-      // Handle object fields
-      setFormData(prev => ({
-        ...prev,
-        [section]: { ...prev[section], [field]: value }
-      }));
-    }
+  const handlePersonalInfoChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      personalInfo: {
+        ...prev.personalInfo,
+        [name]: value
+      }
+    }));
+  };
+
+  const handleEducationChange = (index, e) => {
+    const { name, value } = e.target;
+    const updatedEducation = formData.education.map((edu, i) => {
+      if (i === index) {
+        return { ...edu, [name]: value };
+      }
+      return edu;
+    });
+    setFormData(prev => ({ ...prev, education: updatedEducation }));
+  };
+
+  const handleExperienceChange = (index, e) => {
+    const { name, value, type, checked } = e.target;
+    const updatedExperience = formData.experience.map((exp, i) => {
+      if (i === index) {
+        const newValue = type === 'checkbox' ? checked : value;
+        return { ...exp, [name]: newValue };
+      }
+      return exp;
+    });
+    setFormData(prev => ({ ...prev, experience: updatedExperience }));
+  };
+
+  const handleSkillsChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      skills: {
+        ...prev.skills,
+        [name]: value
+      }
+    }));
   };
 
   const addEducation = () => {
@@ -140,9 +167,9 @@ function ProfileInfoList() {
 
   const handleUpdateProfile = async () => {
     try {
-      await profileInfoService.updateProfileInfo(selectedProfile.id, formData);
+      await jobSeekerInfoService.updateJobSeekerInfo(selectedProfile.id, formData);
       setShowModal(false);
-      await fetchProfileInfoList();
+      await fetchJobSeekerInfoList();
     } catch (error) {
       setError(error.message);
     }
@@ -169,20 +196,20 @@ function ProfileInfoList() {
       {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
       
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Profile Information</h2>
-        <Badge bg="primary">{profileInfoList.length} profile{profileInfoList.length !== 1 ? 's' : ''}</Badge>
+        <h2>My Job Seeker Information</h2>
+        <Badge bg="primary">{jobSeekerInfoList.length} profile{jobSeekerInfoList.length !== 1 ? 's' : ''}</Badge>
       </div>
 
-      {profileInfoList.length === 0 ? (
+      {jobSeekerInfoList.length === 0 ? (
         <Card className="text-center p-4">
           <Card.Body>
-            <h5>No profile information saved yet</h5>
-            <p className="text-muted">Start by creating a new resume to save profile information.</p>
+            <h5>No job seeker information saved yet</h5>
+            <p className="text-muted">Start by creating a new resume to save your profile information.</p>
           </Card.Body>
         </Card>
       ) : (
         <div className="row">
-          {profileInfoList.map((profile) => (
+          {jobSeekerInfoList.map((profile) => (
             <div key={profile.id} className="col-md-6 col-lg-4 mb-3">
               <Card className="profile-info-card h-100">
                 <Card.Body>
@@ -232,11 +259,11 @@ function ProfileInfoList() {
         </div>
       )}
 
-      {/* Modal for viewing/editing profile information */}
+      {/* Modal for viewing/editing job seeker information */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>
-            {modalMode === 'view' ? 'Profile Information Details' : 'Edit Profile Information'}
+            {modalMode === 'view' ? 'Job Seeker Information Details' : 'Edit Job Seeker Information'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -247,14 +274,30 @@ function ProfileInfoList() {
               
               {selectedProfile.personalInfo.summary && (
                 <div className="mb-3">
-                  <h6><FaUser /> Summary</h6>
+                  <h6>Summary</h6>
                   <p>{selectedProfile.personalInfo.summary}</p>
+                </div>
+              )}
+
+              {selectedProfile.education && selectedProfile.education.length > 0 && (
+                <div className="mb-3">
+                  <h6>Education</h6>
+                  {selectedProfile.education.map((edu, index) => (
+                    <div key={index} className="mb-2">
+                      <strong>{edu.school}</strong> - {edu.degree} in {edu.field}
+                      <br />
+                      <small className="text-muted">
+                        {edu.startDate} - {edu.endDate || 'Present'}
+                        {edu.gpa && ` | GPA: ${edu.gpa}`}
+                      </small>
+                    </div>
+                  ))}
                 </div>
               )}
 
               {selectedProfile.experience && selectedProfile.experience.length > 0 && (
                 <div className="mb-3">
-                  <h6><FaBriefcase /> Experience</h6>
+                  <h6>Experience</h6>
                   {selectedProfile.experience.map((exp, index) => (
                     <div key={index} className="mb-2">
                       <strong>{exp.position}</strong> at {exp.company}
@@ -262,19 +305,9 @@ function ProfileInfoList() {
                       <small className="text-muted">
                         {exp.startDate} - {exp.current ? 'Present' : exp.endDate}
                       </small>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {selectedProfile.education && selectedProfile.education.length > 0 && (
-                <div className="mb-3">
-                  <h6><FaGraduationCap /> Education</h6>
-                  {selectedProfile.education.map((edu, index) => (
-                    <div key={index} className="mb-2">
-                      <strong>{edu.degree}</strong> in {edu.field}
-                      <br />
-                      <small className="text-muted">{edu.school}</small>
+                      {exp.description && (
+                        <p className="small mt-1">{exp.description}</p>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -293,186 +326,162 @@ function ProfileInfoList() {
                       <strong>Soft Skills:</strong> {selectedProfile.skills.soft}
                     </div>
                   )}
+                  {selectedProfile.skills.languages && (
+                    <div>
+                      <strong>Languages:</strong> {selectedProfile.skills.languages}
+                    </div>
+                  )}
+                  {selectedProfile.skills.certifications && (
+                    <div>
+                      <strong>Certifications:</strong> {selectedProfile.skills.certifications}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           ) : (
             <Form>
               <h6>Personal Information</h6>
-              <Row>
-                <Col md={6}>
+              <div className="row">
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Full Name</Form.Label>
                     <Form.Control
                       type="text"
+                      name="fullName"
                       value={formData.personalInfo.fullName}
-                      onChange={(e) => handleFormChange('personalInfo', 'fullName', e.target.value)}
+                      onChange={handlePersonalInfoChange}
                       required
                     />
                   </Form.Group>
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Email</Form.Label>
                     <Form.Control
                       type="email"
+                      name="email"
                       value={formData.personalInfo.email}
-                      onChange={(e) => handleFormChange('personalInfo', 'email', e.target.value)}
+                      onChange={handlePersonalInfoChange}
                       required
                     />
                   </Form.Group>
-                </Col>
-              </Row>
+                </div>
+              </div>
 
-              <Row>
-                <Col md={6}>
+              <div className="row">
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Phone</Form.Label>
                     <Form.Control
                       type="tel"
+                      name="phone"
                       value={formData.personalInfo.phone}
-                      onChange={(e) => handleFormChange('personalInfo', 'phone', e.target.value)}
+                      onChange={handlePersonalInfoChange}
                     />
                   </Form.Group>
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Location</Form.Label>
                     <Form.Control
                       type="text"
+                      name="location"
                       value={formData.personalInfo.location}
-                      onChange={(e) => handleFormChange('personalInfo', 'location', e.target.value)}
+                      onChange={handlePersonalInfoChange}
                     />
                   </Form.Group>
-                </Col>
-              </Row>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>LinkedIn</Form.Label>
+                    <Form.Control
+                      type="url"
+                      name="linkedin"
+                      value={formData.personalInfo.linkedin}
+                      onChange={handlePersonalInfoChange}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Portfolio</Form.Label>
+                    <Form.Control
+                      type="url"
+                      name="portfolio"
+                      value={formData.personalInfo.portfolio}
+                      onChange={handlePersonalInfoChange}
+                    />
+                  </Form.Group>
+                </div>
+              </div>
 
               <Form.Group className="mb-3">
-                <Form.Label>Summary</Form.Label>
+                <Form.Label>Professional Summary</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={3}
+                  name="summary"
                   value={formData.personalInfo.summary}
-                  onChange={(e) => handleFormChange('personalInfo', 'summary', e.target.value)}
+                  onChange={handlePersonalInfoChange}
                 />
               </Form.Group>
 
-              <h6>Experience</h6>
-              {formData.experience.map((exp, index) => (
-                <div key={index} className="border p-3 mb-3">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6>Experience #{index + 1}</h6>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => removeExperience(index)}
-                    >
-                      <FaTrash />
-                    </Button>
-                  </div>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Company</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={exp.company}
-                          onChange={(e) => handleFormChange('experience', 'company', e.target.value, index)}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Position</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={exp.position}
-                          onChange={(e) => handleFormChange('experience', 'position', e.target.value, index)}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                  <Form.Group className="mb-2">
-                    <Form.Label>Description</Form.Label>
-                    <Form.Control
-                      as="textarea"
-                      rows={2}
-                      value={exp.description}
-                      onChange={(e) => handleFormChange('experience', 'description', e.target.value, index)}
-                    />
-                  </Form.Group>
-                </div>
-              ))}
-              <Button variant="outline-primary" size="sm" onClick={addExperience} className="mb-3">
-                <FaPlus /> Add Experience
-              </Button>
-
-              <h6>Education</h6>
-              {formData.education.map((edu, index) => (
-                <div key={index} className="border p-3 mb-3">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <h6>Education #{index + 1}</h6>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      onClick={() => removeEducation(index)}
-                    >
-                      <FaTrash />
-                    </Button>
-                  </div>
-                  <Row>
-                    <Col md={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>School</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={edu.school}
-                          onChange={(e) => handleFormChange('education', 'school', e.target.value, index)}
-                        />
-                      </Form.Group>
-                    </Col>
-                    <Col md={6}>
-                      <Form.Group className="mb-2">
-                        <Form.Label>Degree</Form.Label>
-                        <Form.Control
-                          type="text"
-                          value={edu.degree}
-                          onChange={(e) => handleFormChange('education', 'degree', e.target.value, index)}
-                        />
-                      </Form.Group>
-                    </Col>
-                  </Row>
-                </div>
-              ))}
-              <Button variant="outline-primary" size="sm" onClick={addEducation} className="mb-3">
-                <FaPlus /> Add Education
-              </Button>
-
               <h6>Skills</h6>
-              <Row>
-                <Col md={6}>
+              <div className="row">
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Technical Skills</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={3}
+                      name="technical"
                       value={formData.skills.technical}
-                      onChange={(e) => handleFormChange('skills', 'technical', e.target.value)}
+                      onChange={handleSkillsChange}
                     />
                   </Form.Group>
-                </Col>
-                <Col md={6}>
+                </div>
+                <div className="col-md-6">
                   <Form.Group className="mb-3">
                     <Form.Label>Soft Skills</Form.Label>
                     <Form.Control
                       as="textarea"
                       rows={3}
+                      name="soft"
                       value={formData.skills.soft}
-                      onChange={(e) => handleFormChange('skills', 'soft', e.target.value)}
+                      onChange={handleSkillsChange}
                     />
                   </Form.Group>
-                </Col>
-              </Row>
+                </div>
+              </div>
+
+              <div className="row">
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Languages</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="languages"
+                      value={formData.skills.languages}
+                      onChange={handleSkillsChange}
+                    />
+                  </Form.Group>
+                </div>
+                <div className="col-md-6">
+                  <Form.Group className="mb-3">
+                    <Form.Label>Certifications</Form.Label>
+                    <Form.Control
+                      type="text"
+                      name="certifications"
+                      value={formData.skills.certifications}
+                      onChange={handleSkillsChange}
+                    />
+                  </Form.Group>
+                </div>
+              </div>
             </Form>
           )}
         </Modal.Body>

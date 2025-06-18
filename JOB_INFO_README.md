@@ -1,181 +1,204 @@
-# Job Information System
+# Job Description and Job Seeker Information System
 
-This document describes the job information system that allows job seekers to store and manage job descriptions in Firebase, linked to their user accounts.
+This system allows job seekers to store and manage job descriptions and their personal information in Firebase Firestore, linked to their user accounts.
 
-## Overview
+## Firebase Collections
 
-The job information system provides:
-- Storage of job descriptions in Firebase Firestore
-- User-specific job information management
-- Integration with the resume creation process
-- CRUD operations for job information
+### JobDescription Collection
+Stores job description information entered by users.
 
-## Firebase Collection Structure
-
-### Collection: `jobInfo`
-
-Each document in the `jobInfo` collection contains:
-
+**Document Structure:**
 ```javascript
 {
-  id: "auto-generated-firebase-id",
-  title: "Job Title",
-  company: "Company Name", 
-  description: "Full job description text",
+  title: "Senior Software Engineer",
+  company: "Tech Corp Inc.",
+  description: "Job description text...",
   requirements: ["Requirement 1", "Requirement 2", ...],
   responsibilities: ["Responsibility 1", "Responsibility 2", ...],
-  keySkills: ["Skill 1", "Skill 2", "Skill 3", ...],
+  keySkills: ["JavaScript", "React", "Node.js", ...],
   userId: "firebase-user-uid",
-  createdAt: "Firebase Timestamp",
-  updatedAt: "Firebase Timestamp"
+  createdAt: Timestamp,
+  updatedAt: Timestamp
+}
+```
+
+### JobSeekerInfo Collection
+Stores job seeker profile information.
+
+**Document Structure:**
+```javascript
+{
+  personalInfo: {
+    fullName: "John Smith",
+    email: "john@example.com",
+    phone: "+1-555-123-4567",
+    location: "San Francisco, CA",
+    linkedin: "https://linkedin.com/in/johnsmith",
+    portfolio: "https://johnsmith.dev",
+    summary: "Professional summary..."
+  },
+  education: [
+    {
+      school: "Stanford University",
+      degree: "Bachelor of Science",
+      field: "Computer Science",
+      startDate: "2016-09",
+      endDate: "2020-06",
+      gpa: "3.8/4.0",
+      achievements: "Dean's List, Honor Society"
+    }
+  ],
+  experience: [
+    {
+      company: "TechCorp Inc.",
+      position: "Senior Software Engineer",
+      location: "San Francisco, CA",
+      startDate: "2020-07",
+      endDate: "",
+      current: true,
+      description: "Led development of microservices..."
+    }
+  ],
+  skills: {
+    technical: "JavaScript, React, Node.js, AWS",
+    soft: "Leadership, Communication, Problem Solving",
+    languages: "English (Native), Spanish (Conversational)",
+    certifications: "AWS Certified Developer"
+  },
+  userId: "firebase-user-uid",
+  createdAt: Timestamp,
+  updatedAt: Timestamp
 }
 ```
 
 ## API Endpoints
 
-### Base URL: `/api/job-info`
+### Job Description Endpoints
+- `POST /api/job-description` - Create new job description
+- `GET /api/job-description` - Get all job descriptions for user
+- `GET /api/job-description/:id` - Get specific job description
+- `PUT /api/job-description/:id` - Update job description
+- `DELETE /api/job-description/:id` - Delete job description
 
-All endpoints require Firebase authentication via Bearer token.
+### Job Seeker Information Endpoints
+- `POST /api/job-seeker-info` - Create new job seeker information
+- `GET /api/job-seeker-info` - Get all job seeker information for user
+- `GET /api/job-seeker-info/:id` - Get specific job seeker information
+- `PUT /api/job-seeker-info/:id` - Update job seeker information
+- `DELETE /api/job-seeker-info/:id` - Delete job seeker information
 
-#### POST `/api/job-info`
-Create new job information
-- **Body**: Job information object
-- **Returns**: Created job information with ID
+## Authentication
 
-#### GET `/api/job-info`
-Get all job information for the authenticated user
-- **Returns**: Array of job information objects
+All endpoints require Firebase authentication. Include the Firebase ID token in the Authorization header:
+```
+Authorization: Bearer <firebase-id-token>
+```
 
-#### GET `/api/job-info/:id`
-Get specific job information by ID
-- **Returns**: Job information object
+## Seeding Data
 
-#### PUT `/api/job-info/:id`
-Update existing job information
-- **Body**: Updated job information object
-- **Returns**: Updated job information
-
-#### DELETE `/api/job-info/:id`
-Delete job information
-- **Returns**: Success message
-
-## Usage
-
-### 1. Seeding Sample Data
-
-To seed sample job information to Firebase:
-
+### Seed Job Descriptions
 ```bash
-cd server/scripts
-node seedJobInfoToFirebase.js
+cd server
+node scripts/seedJobInfoToFirebase.js
 ```
 
-This will create sample job entries for testing purposes.
+### Seed Job Seeker Information
+```bash
+cd server
+node scripts/seedProfileInfoToFirebase.js
+```
 
-### 2. Client-Side Integration
+## Client-Side Usage
 
-#### Creating Job Information
-
+### Job Description Service
 ```javascript
-import jobInfoService from '../services/jobInfoService';
+import jobDescriptionService from '../services/jobInfoService';
 
-const jobData = {
-  title: "Senior Software Engineer",
-  company: "Tech Corp Inc.",
-  description: "We are looking for...",
-  requirements: "Bachelor's degree\n5+ years experience",
-  responsibilities: "Design solutions\nWrite code",
-  keySkills: "JavaScript, Python, React"
-};
+// Create job description
+const result = await jobDescriptionService.createJobDescription(jobData);
 
-try {
-  const result = await jobInfoService.createJobInfo(jobData);
-  console.log('Job created with ID:', result.id);
-} catch (error) {
-  console.error('Error creating job:', error);
-}
+// Get all job descriptions
+const jobDescriptions = await jobDescriptionService.getJobDescriptionList();
+
+// Get specific job description
+const jobDescription = await jobDescriptionService.getJobDescriptionById(id);
+
+// Update job description
+await jobDescriptionService.updateJobDescription(id, updatedData);
+
+// Delete job description
+await jobDescriptionService.deleteJobDescription(id);
 ```
 
-#### Retrieving Job Information
-
+### Job Seeker Information Service
 ```javascript
-// Get all jobs for current user
-const jobList = await jobInfoService.getJobInfoList();
+import jobSeekerInfoService from '../services/profileInfoService';
 
-// Get specific job by ID
-const job = await jobInfoService.getJobInfoById(jobId);
+// Create job seeker information
+const result = await jobSeekerInfoService.createJobSeekerInfo(profileData);
+
+// Get all job seeker information
+const profiles = await jobSeekerInfoService.getJobSeekerInfoList();
+
+// Get specific job seeker information
+const profile = await jobSeekerInfoService.getJobSeekerInfoById(id);
+
+// Update job seeker information
+await jobSeekerInfoService.updateJobSeekerInfo(id, updatedData);
+
+// Delete job seeker information
+await jobSeekerInfoService.deleteJobSeekerInfo(id);
 ```
-
-#### Updating Job Information
-
-```javascript
-const updatedData = {
-  title: "Updated Job Title",
-  company: "Updated Company",
-  // ... other fields
-};
-
-await jobInfoService.updateJobInfo(jobId, updatedData);
-```
-
-#### Deleting Job Information
-
-```javascript
-await jobInfoService.deleteJobInfo(jobId);
-```
-
-### 3. Integration with Resume Creation
-
-The job information is automatically saved when users fill out the JobForm during resume creation. The job ID is stored in sessionStorage and can be referenced in the resume creation process.
 
 ## Components
 
 ### JobForm
-- Collects job information from users
-- Saves to Firebase via API
-- Stores job ID in sessionStorage for resume creation
+- Form for entering job description information
+- Saves data to Firebase via API
+- Navigates to ProfileForm after successful save
+
+### ProfileForm
+- Form for entering job seeker profile information
+- Includes personal info, education, experience, and skills
+- Creates resume document in Firestore
 
 ### JobInfoList
-- Displays all job information for a user
-- Provides view, edit, and delete functionality
-- Modal-based editing interface
+- Displays all saved job descriptions
+- Allows viewing, editing, and deleting job descriptions
+- Modal interface for detailed view/edit
 
-### JobInfoService
-- Handles all API calls to the job information endpoints
-- Manages authentication tokens
-- Provides error handling
+### ProfileInfoList
+- Displays all saved job seeker profiles
+- Allows viewing, editing, and deleting profiles
+- Modal interface for detailed view/edit
+
+## Data Flow
+
+1. User enters job description in JobForm
+2. Job description is saved to JobDescription collection
+3. User enters profile information in ProfileForm
+4. Profile information is saved to JobSeekerInfo collection
+5. Resume document is created linking both pieces of information
+6. User can view/edit their saved data through list components
 
 ## Security
 
-- All endpoints require Firebase authentication
-- Users can only access their own job information
-- Input validation on both client and server side
-- Proper error handling and user feedback
-
-## Data Validation
-
-The system validates:
-- Required fields (title, company)
-- Data type conversion (strings to arrays for requirements, responsibilities, skills)
-- User ownership verification
-- Input sanitization
+- All data is linked to authenticated users via Firebase UID
+- Users can only access their own data
+- Firebase security rules should be configured to enforce user-based access
+- API endpoints verify Firebase tokens before processing requests
 
 ## Error Handling
 
-Common error scenarios:
-- Authentication failures
-- Invalid job information data
-- Network connectivity issues
-- Permission denied (accessing other users' data)
-
-All errors are properly caught and displayed to users with meaningful messages.
+- Client services include comprehensive error handling
+- Server routes return appropriate HTTP status codes
+- User-friendly error messages are displayed in the UI
+- Console logging for debugging purposes
 
 ## Future Enhancements
 
-Potential improvements:
-- Job information templates
 - Bulk import/export functionality
-- Job information sharing between users
-- Integration with job boards
-- Advanced search and filtering
-- Job application tracking 
+- Data validation and sanitization
+- Search and filtering capabilities
+- Data analytics and insights
+- Integration with job boards and ATS systems 

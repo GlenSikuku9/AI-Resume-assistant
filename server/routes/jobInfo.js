@@ -1,5 +1,8 @@
 import express from 'express';
-import { admin } from '../config/firebase.js';
+import { admin, initializeFirebase } from '../config/firebase.js';
+
+// Initialize Firebase before using it
+initializeFirebase();
 
 const router = express.Router();
 const db = admin.firestore();
@@ -22,7 +25,7 @@ const authenticateUser = async (req, res, next) => {
   }
 };
 
-// Create new job information
+// Create new job description
 router.post('/', authenticateUser, async (req, res) => {
   try {
     const { title, company, description, requirements, responsibilities, keySkills } = req.body;
@@ -46,7 +49,7 @@ router.post('/', authenticateUser, async (req, res) => {
       ? keySkills 
       : keySkills.split(',').map(skill => skill.trim()).filter(skill => skill);
 
-    const jobInfo = {
+    const jobDescription = {
       title,
       company,
       description: description || '',
@@ -58,74 +61,74 @@ router.post('/', authenticateUser, async (req, res) => {
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    const docRef = await db.collection('jobInfo').add(jobInfo);
+    const docRef = await db.collection('JobDescription').add(jobDescription);
     
     res.status(201).json({
       id: docRef.id,
-      message: 'Job information created successfully',
-      jobInfo: { ...jobInfo, id: docRef.id }
+      message: 'Job description created successfully',
+      jobDescription: { ...jobDescription, id: docRef.id }
     });
   } catch (error) {
-    console.error('Error creating job information:', error);
-    res.status(500).json({ error: 'Failed to create job information' });
+    console.error('Error creating job description:', error);
+    res.status(500).json({ error: 'Failed to create job description' });
   }
 });
 
-// Get all job information for a user
+// Get all job descriptions for a user
 router.get('/', authenticateUser, async (req, res) => {
   try {
     const userId = req.user.uid;
     
-    const snapshot = await db.collection('jobInfo')
+    const snapshot = await db.collection('JobDescription')
       .where('userId', '==', userId)
       .orderBy('createdAt', 'desc')
       .get();
 
-    const jobInfoList = [];
+    const jobDescriptionList = [];
     snapshot.forEach(doc => {
-      jobInfoList.push({
+      jobDescriptionList.push({
         id: doc.id,
         ...doc.data()
       });
     });
 
-    res.json(jobInfoList);
+    res.json(jobDescriptionList);
   } catch (error) {
-    console.error('Error fetching job information:', error);
-    res.status(500).json({ error: 'Failed to fetch job information' });
+    console.error('Error fetching job descriptions:', error);
+    res.status(500).json({ error: 'Failed to fetch job descriptions' });
   }
 });
 
-// Get specific job information by ID
+// Get specific job description by ID
 router.get('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.uid;
 
-    const doc = await db.collection('jobInfo').doc(id).get();
+    const doc = await db.collection('JobDescription').doc(id).get();
     
     if (!doc.exists) {
-      return res.status(404).json({ error: 'Job information not found' });
+      return res.status(404).json({ error: 'Job description not found' });
     }
 
-    const jobInfo = doc.data();
+    const jobDescription = doc.data();
     
-    // Ensure user can only access their own job information
-    if (jobInfo.userId !== userId) {
+    // Ensure user can only access their own job descriptions
+    if (jobDescription.userId !== userId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
     res.json({
       id: doc.id,
-      ...jobInfo
+      ...jobDescription
     });
   } catch (error) {
-    console.error('Error fetching job information:', error);
-    res.status(500).json({ error: 'Failed to fetch job information' });
+    console.error('Error fetching job description:', error);
+    res.status(500).json({ error: 'Failed to fetch job description' });
   }
 });
 
-// Update job information
+// Update job description
 router.put('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
@@ -133,14 +136,14 @@ router.put('/:id', authenticateUser, async (req, res) => {
     const { title, company, description, requirements, responsibilities, keySkills } = req.body;
 
     // First check if the document exists and belongs to the user
-    const doc = await db.collection('jobInfo').doc(id).get();
+    const doc = await db.collection('JobDescription').doc(id).get();
     
     if (!doc.exists) {
-      return res.status(404).json({ error: 'Job information not found' });
+      return res.status(404).json({ error: 'Job description not found' });
     }
 
-    const existingJobInfo = doc.data();
-    if (existingJobInfo.userId !== userId) {
+    const existingJobDescription = doc.data();
+    if (existingJobDescription.userId !== userId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
@@ -162,7 +165,7 @@ router.put('/:id', authenticateUser, async (req, res) => {
       ? keySkills 
       : keySkills.split(',').map(skill => skill.trim()).filter(skill => skill);
 
-    const updatedJobInfo = {
+    const updatedJobDescription = {
       title,
       company,
       description: description || '',
@@ -172,42 +175,42 @@ router.put('/:id', authenticateUser, async (req, res) => {
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     };
 
-    await db.collection('jobInfo').doc(id).update(updatedJobInfo);
+    await db.collection('JobDescription').doc(id).update(updatedJobDescription);
     
     res.json({
-      message: 'Job information updated successfully',
-      jobInfo: { id, ...updatedJobInfo }
+      message: 'Job description updated successfully',
+      jobDescription: { id, ...updatedJobDescription }
     });
   } catch (error) {
-    console.error('Error updating job information:', error);
-    res.status(500).json({ error: 'Failed to update job information' });
+    console.error('Error updating job description:', error);
+    res.status(500).json({ error: 'Failed to update job description' });
   }
 });
 
-// Delete job information
+// Delete job description
 router.delete('/:id', authenticateUser, async (req, res) => {
   try {
     const { id } = req.params;
     const userId = req.user.uid;
 
     // First check if the document exists and belongs to the user
-    const doc = await db.collection('jobInfo').doc(id).get();
+    const doc = await db.collection('JobDescription').doc(id).get();
     
     if (!doc.exists) {
-      return res.status(404).json({ error: 'Job information not found' });
+      return res.status(404).json({ error: 'Job description not found' });
     }
 
-    const jobInfo = doc.data();
-    if (jobInfo.userId !== userId) {
+    const jobDescription = doc.data();
+    if (jobDescription.userId !== userId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 
-    await db.collection('jobInfo').doc(id).delete();
+    await db.collection('JobDescription').doc(id).delete();
     
-    res.json({ message: 'Job information deleted successfully' });
+    res.json({ message: 'Job description deleted successfully' });
   } catch (error) {
-    console.error('Error deleting job information:', error);
-    res.status(500).json({ error: 'Failed to delete job information' });
+    console.error('Error deleting job description:', error);
+    res.status(500).json({ error: 'Failed to delete job description' });
   }
 });
 

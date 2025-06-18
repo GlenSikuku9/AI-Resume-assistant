@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import jobInfoService from '../../services/jobInfoService';
+import jobDescriptionService from '../../services/jobInfoService';
+import ResumeStepper from '../../components/ResumeStepper';
 import './JobForm.css';
 
 function JobForm() {
@@ -34,8 +35,8 @@ function JobForm() {
       setError('');
       setLoading(true);
 
-      // Save job information to Firebase using the service
-      const result = await jobInfoService.createJobInfo(jobData);
+      // Save job description to Firebase using the service
+      const result = await jobDescriptionService.createJobDescription(jobData);
       
       // Store job ID in session storage for use in ProfileForm
       sessionStorage.setItem('jobInfoId', result.id);
@@ -44,7 +45,7 @@ function JobForm() {
       // Navigate to profile form
       navigate('/profile-form');
     } catch (error) {
-      setError(error.message || 'Failed to save job information');
+      setError(error.message || 'Failed to save job description');
       console.error('Error saving job data:', error);
     } finally {
       setLoading(false);
@@ -53,10 +54,11 @@ function JobForm() {
 
   return (
     <div className="job-form-container">
+      <ResumeStepper currentStep={2} />
       <Container>
         <div className="job-form-header">
-          <h2>Job Details</h2>
-          <p>Enter the job information to tailor your resume</p>
+          <h2>Job Description</h2>
+          <p>Enter the details of the job you are targeting. This helps us tailor your resume for the role.</p>
         </div>
 
         {error && <Alert variant="danger">{error}</Alert>}
@@ -172,7 +174,7 @@ function JobForm() {
           <div className="job-form-actions">
             <Button
               variant="outline-secondary"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/templates')}
             >
               Back
             </Button>

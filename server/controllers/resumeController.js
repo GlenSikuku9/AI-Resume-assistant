@@ -37,23 +37,55 @@ const getUserResumes = async (req, res) => {
 
 const createResume = async (req, res) => {
   try {
-    const { userId, templateId, jobDescription, personalInfo } = req.body;
+    console.log('Request user:', req.user);
+    console.log('Request body:', req.body);
+    
+    const { 
+      templateId, 
+      jobDescription, 
+      personalInfo, 
+      education, 
+      experience, 
+      skills,
+      content,
+      versions 
+    } = req.body;
+    
+    // Use the authenticated user's ID
+    const userId = req.user?.uid;
+    
+    if (!userId) {
+      console.error('No user ID found in request');
+      return res.status(401).json({ error: 'User not authenticated properly' });
+    }
+    
+    console.log('Creating resume for user:', userId);
+    
+    const resumeData = {
+      userId,
+      templateId: templateId || null,
+      jobDescription: jobDescription || {},
+      personalInfo: personalInfo || {},
+      education: education || [],
+      experience: experience || [],
+      skills: skills || {},
+      content: content || '',
+      versions: versions || [],
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    };
+    
+    console.log('Resume data to save:', resumeData);
     
     const resumeRef = await admin.firestore()
       .collection('resumes')
-      .add({
-        userId,
-        templateId,
-        jobDescription,
-        personalInfo,
-        content: '',
-        versions: [],
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp()
-      });
+      .add(resumeData);
+    
+    console.log('Resume created with ID:', resumeRef.id);
     
     res.json({ id: resumeRef.id });
   } catch (error) {
+    console.error('Error creating resume:', error);
     res.status(500).json({ error: error.message });
   }
 };

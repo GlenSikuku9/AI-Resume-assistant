@@ -1,11 +1,18 @@
 import { getAuth } from 'firebase/auth';
 
-const API_BASE_URL = '/api/profile-info';
+const API_BASE_URL = '/api/job-seeker-info';
 
-class ProfileInfoService {
+class JobSeekerInfoService {
   constructor() {
-    // Get auth instance - Firebase v9+ will use the default app
-    this.auth = getAuth();
+    // Don't initialize auth immediately - lazy load it
+    this._auth = null;
+  }
+
+  get auth() {
+    if (!this._auth) {
+      this._auth = getAuth();
+    }
+    return this._auth;
   }
 
   async getAuthToken() {
@@ -16,7 +23,7 @@ class ProfileInfoService {
     return await user.getIdToken();
   }
 
-  async createProfileInfo(profileData) {
+  async createJobSeekerInfo(profileData) {
     try {
       const token = await this.getAuthToken();
       
@@ -31,17 +38,17 @@ class ProfileInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create profile information');
+        throw new Error(errorData.error || 'Failed to create job seeker information');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error creating profile information:', error);
+      console.error('Error creating job seeker information:', error);
       throw error;
     }
   }
 
-  async getProfileInfoList() {
+  async getJobSeekerInfoList() {
     try {
       const token = await this.getAuthToken();
       
@@ -54,17 +61,17 @@ class ProfileInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch profile information');
+        throw new Error(errorData.error || 'Failed to fetch job seeker information');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching profile information list:', error);
+      console.error('Error fetching job seeker information list:', error);
       throw error;
     }
   }
 
-  async getProfileInfoById(id) {
+  async getJobSeekerInfoById(id) {
     try {
       const token = await this.getAuthToken();
       
@@ -77,17 +84,17 @@ class ProfileInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch profile information');
+        throw new Error(errorData.error || 'Failed to fetch job seeker information');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching profile information:', error);
+      console.error('Error fetching job seeker information:', error);
       throw error;
     }
   }
 
-  async updateProfileInfo(id, profileData) {
+  async updateJobSeekerInfo(id, profileData) {
     try {
       const token = await this.getAuthToken();
       
@@ -102,17 +109,17 @@ class ProfileInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update profile information');
+        throw new Error(errorData.error || 'Failed to update job seeker information');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error updating profile information:', error);
+      console.error('Error updating job seeker information:', error);
       throw error;
     }
   }
 
-  async deleteProfileInfo(id) {
+  async deleteJobSeekerInfo(id) {
     try {
       const token = await this.getAuthToken();
       
@@ -125,15 +132,15 @@ class ProfileInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete profile information');
+        throw new Error(errorData.error || 'Failed to delete job seeker information');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error deleting profile information:', error);
+      console.error('Error deleting job seeker information:', error);
       throw error;
     }
   }
 }
 
-export default new ProfileInfoService(); 
+export default new JobSeekerInfoService(); 

@@ -1,11 +1,18 @@
 import { getAuth } from 'firebase/auth';
 
-const API_BASE_URL = '/api/job-info';
+const API_BASE_URL = '/api/job-description';
 
-class JobInfoService {
+class JobDescriptionService {
   constructor() {
-    // Get auth instance - Firebase v9+ will use the default app
-    this.auth = getAuth();
+    // Don't initialize auth immediately - lazy load it
+    this._auth = null;
+  }
+
+  get auth() {
+    if (!this._auth) {
+      this._auth = getAuth();
+    }
+    return this._auth;
   }
 
   async getAuthToken() {
@@ -16,7 +23,7 @@ class JobInfoService {
     return await user.getIdToken();
   }
 
-  async createJobInfo(jobData) {
+  async createJobDescription(jobData) {
     try {
       const token = await this.getAuthToken();
       
@@ -31,17 +38,17 @@ class JobInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create job information');
+        throw new Error(errorData.error || 'Failed to create job description');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error creating job information:', error);
+      console.error('Error creating job description:', error);
       throw error;
     }
   }
 
-  async getJobInfoList() {
+  async getJobDescriptionList() {
     try {
       const token = await this.getAuthToken();
       
@@ -54,17 +61,17 @@ class JobInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch job information');
+        throw new Error(errorData.error || 'Failed to fetch job descriptions');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching job information list:', error);
+      console.error('Error fetching job description list:', error);
       throw error;
     }
   }
 
-  async getJobInfoById(id) {
+  async getJobDescriptionById(id) {
     try {
       const token = await this.getAuthToken();
       
@@ -77,17 +84,17 @@ class JobInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch job information');
+        throw new Error(errorData.error || 'Failed to fetch job description');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error fetching job information:', error);
+      console.error('Error fetching job description:', error);
       throw error;
     }
   }
 
-  async updateJobInfo(id, jobData) {
+  async updateJobDescription(id, jobData) {
     try {
       const token = await this.getAuthToken();
       
@@ -102,17 +109,17 @@ class JobInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update job information');
+        throw new Error(errorData.error || 'Failed to update job description');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error updating job information:', error);
+      console.error('Error updating job description:', error);
       throw error;
     }
   }
 
-  async deleteJobInfo(id) {
+  async deleteJobDescription(id) {
     try {
       const token = await this.getAuthToken();
       
@@ -125,15 +132,15 @@ class JobInfoService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete job information');
+        throw new Error(errorData.error || 'Failed to delete job description');
       }
 
       return await response.json();
     } catch (error) {
-      console.error('Error deleting job information:', error);
+      console.error('Error deleting job description:', error);
       throw error;
     }
   }
 }
 
-export default new JobInfoService(); 
+export default new JobDescriptionService(); 

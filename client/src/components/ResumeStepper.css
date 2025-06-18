@@ -1,0 +1,124 @@
+.resume-stepper-container {
+  width: 100%;
+  margin: 0 auto 2.5rem auto;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+}
+
+.resume-stepper {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  max-width: 900px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resume-stepper-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1 1 0;
+  min-width: 80px;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0eafc;
+  color: #4b6cb7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  border: 2.5px solid #e0eafc;
+  transition: background 0.2s, color 0.2s, border 0.2s;
+}
+
+.resume-stepper-step.active .step-circle {
+  background: #4b6cb7;
+  color: #fff;
+  border: 2.5px solid #4b6cb7;
+  box-shadow: 0 2px 8px rgba(75,108,183,0.12);
+}
+
+.resume-stepper-step.completed .step-circle {
+  background: #34a853;
+  color: #fff;
+  border: 2.5px solid #34a853;
+}
+
+.step-check {
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.step-label {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #4b6cb7;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.2px;
+}
+
+.resume-stepper-step.active .step-label {
+  color: #182848;
+  font-weight: 700;
+}
+
+.resume-stepper-step.completed .step-label {
+  color: #34a853;
+}
+
+.step-bar {
+  position: absolute;
+  top: 18px;
+  left: 100%;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #e0eafc 0%, #4b6cb7 100%);
+  z-index: 0;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.resume-stepper-step.completed ~ .resume-stepper-step .step-bar {
+  background: #e0eafc;
+}
+
+@media (max-width: 768px) {
+  .resume-stepper {
+    flex-direction: column;
+    align-items: flex-start;
+    max-width: 100%;
+  }
+  .resume-stepper-step {
+    flex-direction: row;
+    align-items: center;
+    min-width: 0;
+    margin-bottom: 1.5rem;
+  }
+  .step-label {
+    margin-left: 1rem;
+    margin-bottom: 0;
+    font-size: 1rem;
+  }
+  .step-bar {
+    position: static;
+    width: 30px;
+    height: 4px;
+    margin: 0 0.5rem;
+    background: linear-gradient(90deg, #e0eafc 0%, #4b6cb7 100%);
+  }
+} 

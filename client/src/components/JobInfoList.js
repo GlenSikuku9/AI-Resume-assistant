@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
-import jobInfoService from '../services/jobInfoService';
+import jobDescriptionService from '../services/jobInfoService';
 import './JobInfoList.css';
 
 function JobInfoList() {
-  const [jobInfoList, setJobInfoList] = useState([]);
+  const [jobDescriptionList, setJobDescriptionList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -21,14 +21,14 @@ function JobInfoList() {
   });
 
   useEffect(() => {
-    fetchJobInfoList();
+    fetchJobDescriptionList();
   }, []);
 
-  const fetchJobInfoList = async () => {
+  const fetchJobDescriptionList = async () => {
     try {
       setLoading(true);
-      const data = await jobInfoService.getJobInfoList();
-      setJobInfoList(data);
+      const data = await jobDescriptionService.getJobDescriptionList();
+      setJobDescriptionList(data);
     } catch (error) {
       setError(error.message);
     } finally {
@@ -57,10 +57,10 @@ function JobInfoList() {
   };
 
   const handleDeleteJob = async (jobId) => {
-    if (window.confirm('Are you sure you want to delete this job information?')) {
+    if (window.confirm('Are you sure you want to delete this job description?')) {
       try {
-        await jobInfoService.deleteJobInfo(jobId);
-        await fetchJobInfoList();
+        await jobDescriptionService.deleteJobDescription(jobId);
+        await fetchJobDescriptionList();
       } catch (error) {
         setError(error.message);
       }
@@ -77,9 +77,9 @@ function JobInfoList() {
 
   const handleUpdateJob = async () => {
     try {
-      await jobInfoService.updateJobInfo(selectedJob.id, formData);
+      await jobDescriptionService.updateJobDescription(selectedJob.id, formData);
       setShowModal(false);
-      await fetchJobInfoList();
+      await fetchJobDescriptionList();
     } catch (error) {
       setError(error.message);
     }
@@ -106,20 +106,20 @@ function JobInfoList() {
       {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
       
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h2>My Job Information</h2>
-        <Badge bg="primary">{jobInfoList.length} job{jobInfoList.length !== 1 ? 's' : ''}</Badge>
+        <h2>My Job Descriptions</h2>
+        <Badge bg="primary">{jobDescriptionList.length} job{jobDescriptionList.length !== 1 ? 's' : ''}</Badge>
       </div>
 
-      {jobInfoList.length === 0 ? (
+      {jobDescriptionList.length === 0 ? (
         <Card className="text-center p-4">
           <Card.Body>
-            <h5>No job information saved yet</h5>
-            <p className="text-muted">Start by creating a new resume to save job information.</p>
+            <h5>No job descriptions saved yet</h5>
+            <p className="text-muted">Start by creating a new resume to save job descriptions.</p>
           </Card.Body>
         </Card>
       ) : (
         <div className="row">
-          {jobInfoList.map((job) => (
+          {jobDescriptionList.map((job) => (
             <div key={job.id} className="col-md-6 col-lg-4 mb-3">
               <Card className="job-info-card h-100">
                 <Card.Body>
@@ -168,11 +168,11 @@ function JobInfoList() {
         </div>
       )}
 
-      {/* Modal for viewing/editing job information */}
+      {/* Modal for viewing/editing job descriptions */}
       <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>
-            {modalMode === 'view' ? 'Job Information Details' : 'Edit Job Information'}
+            {modalMode === 'view' ? 'Job Description Details' : 'Edit Job Description'}
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
