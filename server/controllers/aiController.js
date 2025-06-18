@@ -1,9 +1,9 @@
-const {
+import {
   generateCacheKey,
   cacheResponse,
   getCachedResponse,
   callTogetherAI
-} = require('../utils/aiHelpers');
+} from '../utils/aiHelpers.js';
 
 const generateResume = async (req, res) => {
   try {
@@ -90,7 +90,7 @@ const getKeywords = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   generateResume,
   editSection,
   getKeywords

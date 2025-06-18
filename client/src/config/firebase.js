@@ -1,12 +1,10 @@
-// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyBXEgYVyMUbU9dJVjXWo7b8pEtP6NBuS7s",
-  authDomain: "ai-resume-assistant-3ca9c.firebaseapp.com",
-  projectId: "ai-resume-assistant-3ca9c",
-  storageBucket: "ai-resume-assistant-3ca9c.firebasestorage.app",
-  messagingSenderId: "374339635962",
-  appId: "1:374339635962:web:1ac60783d87b33486e1743"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
-
-export default firebaseConfig; 
+export default firebaseConfig;

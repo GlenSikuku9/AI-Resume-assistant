@@ -2,6 +2,7 @@
   "name": "ai-resume-assistant-server",
   "version": "1.0.0",
   "description": "Backend for the AI-powered resume creation and editing platform",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",

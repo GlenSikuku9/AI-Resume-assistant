@@ -1,12 +1,13 @@
-const express = require('express');
-const router = express.Router();
-const {
+import express from 'express';
+import {
   getTemplates,
   getUserResumes,
   createResume,
   updateResume,
   deleteResume
-} = require('../controllers/resumeController');
+} from '../controllers/resumeController.js';
+
+const router = express.Router();
 
 // Get all resume templates
 router.get('/templates', getTemplates);
@@ -23,4 +24,4 @@ router.put('/:resumeId', updateResume);
 // Delete resume
 router.delete('/:resumeId', deleteResume);
 
-module.exports = router; 
+export default router; 

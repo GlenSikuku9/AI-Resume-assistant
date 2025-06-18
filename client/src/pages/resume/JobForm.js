@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Card, Alert } from 'react-bootstrap';
+import React, { useState } from 'react';
+import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import jobInfoService from '../../services/jobInfoService';
 import './JobForm.css';
+
 function JobForm() {
   const [jobData, setJobData] = useState({
     title: '',
@@ -17,14 +18,6 @@ function JobForm() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { currentUser } = useAuth();
-
-  useEffect(() => {
-    // Check if template was selected
-    const selectedTemplate = sessionStorage.getItem('selectedTemplate');
-    if (!selectedTemplate) {
-      navigate('/templates');
-    }
-  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -59,39 +52,52 @@ function JobForm() {
   };
 
   return (
-    <div className="d-flex justify-content-center">
-      <Card style={{ width: '800px' }}>
-        <Card.Body>
-          <h2 className="text-center mb-4">Job Details</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          
-          <Form onSubmit={handleSubmit}>
-            <Form.Group className="mb-3" controlId="title">
-              <Form.Label>Job Title</Form.Label>
-              <Form.Control
-                type="text"
-                name="title"
-                value={jobData.title}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Senior Software Engineer"
-              />
-            </Form.Group>
+    <div className="job-form-container">
+      <Container>
+        <div className="job-form-header">
+          <h2>Job Details</h2>
+          <p>Enter the job information to tailor your resume</p>
+        </div>
 
-            <Form.Group className="mb-3" controlId="company">
-              <Form.Label>Company Name</Form.Label>
-              <Form.Control
-                type="text"
-                name="company"
-                value={jobData.company}
-                onChange={handleChange}
-                required
-                placeholder="e.g., Tech Corp Inc."
-              />
-            </Form.Group>
+        {error && <Alert variant="danger">{error}</Alert>}
+        
+        <Form onSubmit={handleSubmit}>
+          <Card className="job-form-section">
+            <h3>Basic Information</h3>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="title">
+                  <Form.Label>Job Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="title"
+                    value={jobData.title}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g., Senior Software Engineer"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="company">
+                  <Form.Label>Company Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="company"
+                    value={jobData.company}
+                    onChange={handleChange}
+                    required
+                    placeholder="e.g., Tech Corp Inc."
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card>
 
+          <Card className="job-form-section">
+            <h3>Job Description</h3>
             <Form.Group className="mb-3" controlId="description">
-              <Form.Label>Job Description</Form.Label>
+              <Form.Label>Full Description</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={4}
@@ -102,41 +108,52 @@ function JobForm() {
                 placeholder="Paste the full job description here"
               />
             </Form.Group>
+          </Card>
 
-            <Form.Group className="mb-3" controlId="requirements">
-              <Form.Label>Requirements</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                name="requirements"
-                value={jobData.requirements}
-                onChange={handleChange}
-                required
-                placeholder="List the job requirements"
-              />
-              <Form.Text className="text-muted">
-                Separate each requirement with a new line
-              </Form.Text>
-            </Form.Group>
+          <Card className="job-form-section">
+            <h3>Requirements & Responsibilities</h3>
+            <Row>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="requirements">
+                  <Form.Label>Requirements</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    name="requirements"
+                    value={jobData.requirements}
+                    onChange={handleChange}
+                    required
+                    placeholder="List the job requirements"
+                  />
+                  <Form.Text className="text-muted">
+                    Separate each requirement with a new line
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group className="mb-3" controlId="responsibilities">
+                  <Form.Label>Key Responsibilities</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={4}
+                    name="responsibilities"
+                    value={jobData.responsibilities}
+                    onChange={handleChange}
+                    required
+                    placeholder="List the key responsibilities"
+                  />
+                  <Form.Text className="text-muted">
+                    Separate each responsibility with a new line
+                  </Form.Text>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Card>
 
-            <Form.Group className="mb-3" controlId="responsibilities">
-              <Form.Label>Key Responsibilities</Form.Label>
-              <Form.Control
-                as="textarea"
-                rows={4}
-                name="responsibilities"
-                value={jobData.responsibilities}
-                onChange={handleChange}
-                required
-                placeholder="List the key responsibilities"
-              />
-              <Form.Text className="text-muted">
-                Separate each responsibility with a new line
-              </Form.Text>
-            </Form.Group>
-
+          <Card className="job-form-section">
+            <h3>Required Skills</h3>
             <Form.Group className="mb-3" controlId="keySkills">
-              <Form.Label>Required Skills</Form.Label>
+              <Form.Label>Skills & Qualifications</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={3}
@@ -150,25 +167,25 @@ function JobForm() {
                 Separate skills with commas (e.g., Python, React, AWS)
               </Form.Text>
             </Form.Group>
+          </Card>
 
-            <div className="d-flex justify-content-between">
-              <Button
-                variant="outline-secondary"
-                onClick={() => navigate('/templates')}
-              >
-                Back
-              </Button>
-              <Button
-                variant="primary"
-                type="submit"
-                disabled={loading}
-              >
-                {loading ? 'Saving...' : 'Continue'}
-              </Button>
-            </div>
-          </Form>
-        </Card.Body>
-      </Card>
+          <div className="job-form-actions">
+            <Button
+              variant="outline-secondary"
+              onClick={() => navigate('/dashboard')}
+            >
+              Back
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Continue'}
+            </Button>
+          </div>
+        </Form>
+      </Container>
     </div>
   );
 }

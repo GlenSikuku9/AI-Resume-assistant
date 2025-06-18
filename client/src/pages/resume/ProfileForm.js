@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
@@ -49,16 +49,6 @@ function ProfileForm() {
     languages: '',
     certifications: ''
   });
-
-  useEffect(() => {
-    // Check if previous steps are completed
-    const templateData = sessionStorage.getItem('selectedTemplate');
-    const jobData = sessionStorage.getItem('jobData');
-    
-    if (!templateData || !jobData) {
-      navigate('/templates');
-    }
-  }, [navigate]);
 
   const handlePersonalInfoChange = (e) => {
     const { name, value } = e.target;
@@ -139,23 +129,10 @@ function ProfileForm() {
       setLoading(true);
 
       const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
-      const jobInfoId = sessionStorage.getItem('jobInfoId');
 
-      // Save profile information to Firebase
-      const profileData = {
-        personalInfo,
-        education,
-        experience,
-        skills
-      };
-
-      const profileResult = await profileInfoService.createProfileInfo(profileData);
-      
-      // Create resume in Firestore
       const db = getFirestore();
       const resumeRef = await addDoc(collection(db, 'resumes'), {
         userId: currentUser.uid,
-        templateId: templateData.id,
         jobDescription: jobData,
         jobInfoId: jobInfoId, // Link to job info if available
         profileInfoId: profileResult.id, // Link to profile info
@@ -169,11 +146,7 @@ function ProfileForm() {
         updatedAt: new Date().toISOString()
       });
 
-      // Store IDs in session storage for use in editor
-      sessionStorage.setItem('profileInfoId', profileResult.id);
-      sessionStorage.setItem('resumeId', resumeRef.id);
-
-      // Clear job data from session storage
+      // Clear session storage
       sessionStorage.removeItem('jobData');
       sessionStorage.removeItem('jobInfoId');
 

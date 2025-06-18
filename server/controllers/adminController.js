@@ -1,4 +1,4 @@
-const { admin } = require('../config/firebase');
+import { admin } from '../config/firebase.js';
 
 const getApiUsage = async (req, res) => {
   try {
@@ -73,7 +73,7 @@ const updateSettings = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getApiUsage,
   getPerformanceMetrics,
   getUserStats,

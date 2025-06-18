@@ -9,22 +9,43 @@ function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const [message, setMessage] = useState('');
+  const { login, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setError('');
+      setMessage('');
       setLoading(true);
+
       await login(email, password);
-      setTimeout(() => {
-        navigate('/templates');
-      }, 100);
+      navigate('/templates');
+
     } catch (error) {
       setError('Failed to sign in. Please check your credentials.');
       console.error('Login error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      return setError('Please enter your email address first');
+    }
+
+    try {
+      setError('');
+      setMessage('');
+      setLoading(true);
+      await resetPassword(email);
+      setMessage('Check your email for password reset instructions');
+    } catch (error) {
+      setError('Failed to reset password. Please try again.');
+      console.error('Reset password error:', error);
     } finally {
       setLoading(false);
     }
@@ -39,6 +60,7 @@ function Login() {
         </div>
 
         {error && <Alert variant="danger" className="auth-alert">{error}</Alert>}
+        {message && <Alert variant="success" className="auth-alert">{message}</Alert>}
 
         <Form className="auth-form" onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
@@ -63,8 +85,19 @@ function Login() {
             />
           </Form.Group>
 
+          <div className="forgot-password mb-3">
+            <Button
+              variant="link"
+              className="p-0 text-decoration-none"
+              onClick={handleResetPassword}
+              disabled={loading}
+            >
+              Forgot Password?
+            </Button>
+          </div>
+
           <Button
-            className="auth-button"
+            className="auth-button w-100"
             type="submit"
             disabled={loading}
           >
@@ -73,7 +106,7 @@ function Login() {
 
           <div className="auth-link">
             <p>
-              Already have an account? <Link to="/login">Log In</Link>
+              Don't have an account?<Link to="/register">Sign Up</Link>
             </p>
           </div>
         </Form>
@@ -82,4 +115,4 @@ function Login() {
   );
 }
 
-export default Login; 
+export default Login;

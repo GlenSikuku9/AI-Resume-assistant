@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
+import './AdminDashboard.css';
 
 function AdminDashboard() {
   const [apiUsage, setApiUsage] = useState([]);
   const [performance, setPerformance] = useState([]);
   const [stats, setStats] = useState(null);
+  const [templateUsage, setTemplateUsage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
@@ -40,6 +42,14 @@ function AdminDashboard() {
         const statsData = await statsResponse.json();
         if (!statsResponse.ok) throw new Error(statsData.error);
         setStats(statsData);
+
+        // Fetch template usage statistics
+        const templateResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/template-stats`, {
+          headers
+        });
+        const templateData = await templateResponse.json();
+        if (!templateResponse.ok) throw new Error(templateData.error);
+        setTemplateUsage(templateData);
       } catch (error) {
         setError('Failed to fetch admin data');
         console.error('Admin dashboard error:', error);
@@ -56,43 +66,107 @@ function AdminDashboard() {
   }
 
   return (
-    <Container>
+    <Container className="admin-dashboard">
       {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
-      <h2 className="mb-4">Admin Dashboard</h2>
+      <h2 className="dashboard-title mb-4">Admin Dashboard</h2>
 
-      {/* User Statistics */}
+      {/* Key Metrics */}
       <Row className="mb-4">
-        <Col md={4}>
-          <Card>
+        <Col md={3}>
+          <Card className="metric-card">
             <Card.Body>
               <Card.Title>Total Users</Card.Title>
               <h3>{stats?.totalUsers || 0}</h3>
+              <p className="text-muted">Registered accounts</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
-          <Card>
+        <Col md={3}>
+          <Card className="metric-card">
             <Card.Body>
               <Card.Title>Total Resumes</Card.Title>
               <h3>{stats?.totalResumes || 0}</h3>
+              <p className="text-muted">Created resumes</p>
             </Card.Body>
           </Card>
         </Col>
-        <Col md={4}>
-          <Card>
+        <Col md={3}>
+          <Card className="metric-card">
             <Card.Body>
-              <Card.Title>Avg. Resumes/User</Card.Title>
-              <h3>{stats?.averageResumesPerUser?.toFixed(2) || 0}</h3>
+              <Card.Title>PDF Downloads</Card.Title>
+              <h3>{stats?.totalDownloads || 0}</h3>
+              <p className="text-muted">Total downloads</p>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="metric-card">
+            <Card.Body>
+              <Card.Title>API Usage</Card.Title>
+              <h3>{stats?.totalApiCalls || 0}</h3>
+              <p className="text-muted">Total API calls</p>
             </Card.Body>
           </Card>
         </Col>
       </Row>
 
-      {/* API Usage */}
+      {/* Template Usage */}
+      <Row className="mb-4">
+        <Col md={6}>
+          <Card className="template-usage-card">
+            <Card.Body>
+              <Card.Title>Most Used Templates</Card.Title>
+              <div className="template-usage-list">
+                {templateUsage.map((template) => (
+                  <div key={template.id} className="template-usage-item">
+                    <div className="template-info">
+                      <span className="template-name">{template.name}</span>
+                      <span className="template-count">{template.usageCount} uses</span>
+                    </div>
+                    <div className="template-bar">
+                      <div 
+                        className="template-bar-fill"
+                        style={{ width: `${(template.usageCount / templateUsage[0].usageCount) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={6}>
+          <Card className="recent-activity-card">
+            <Card.Body>
+              <Card.Title>Recent Activity</Card.Title>
+              <Table responsive className="activity-table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>User</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {apiUsage.slice(0, 5).map((usage) => (
+                    <tr key={usage.id}>
+                      <td>{new Date(usage.timestamp).toLocaleTimeString()}</td>
+                      <td>{usage.userId}</td>
+                      <td>{usage.endpoint}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+
+      {/* API Usage Details */}
       <Card className="mb-4">
         <Card.Body>
-          <Card.Title>Recent API Usage</Card.Title>
+          <Card.Title>API Usage Details</Card.Title>
           <Table responsive>
             <thead>
               <tr>
@@ -115,35 +189,6 @@ function AdminDashboard() {
                       {usage.status}
                     </span>
                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card.Body>
-      </Card>
-
-      {/* Performance Metrics */}
-      <Card>
-        <Card.Body>
-          <Card.Title>System Performance</Card.Title>
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>CPU Usage</th>
-                <th>Memory Usage</th>
-                <th>Active Users</th>
-                <th>Response Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {performance.map((metric) => (
-                <tr key={metric.id}>
-                  <td>{new Date(metric.timestamp).toLocaleString()}</td>
-                  <td>{metric.cpuUsage}%</td>
-                  <td>{metric.memoryUsage}MB</td>
-                  <td>{metric.activeUsers}</td>
-                  <td>{metric.avgResponseTime}ms</td>
                 </tr>
               ))}
             </tbody>

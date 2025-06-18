@@ -1,6 +1,6 @@
-const { checkRateLimit } = require('../utils/aiHelpers');
+import { checkRateLimit } from '../utils/aiHelpers.js';
 
-const rateLimitMiddleware = (req, res, next) => {
+export const rateLimitMiddleware = (req, res, next) => {
   const userId = req.body.userId;
   
   if (!checkRateLimit(userId)) {
@@ -8,6 +8,4 @@ const rateLimitMiddleware = (req, res, next) => {
   }
   
   next();
-};
-
-module.exports = rateLimitMiddleware; 
+}; 
