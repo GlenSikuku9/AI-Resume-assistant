@@ -1,4 +1,4 @@
-const { admin } = require('../config/firebase');
+import { admin } from '../config/firebase.js';
 
 const getProfile = async (req, res) => {
   try {
@@ -31,7 +31,7 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getProfile,
   updateProfile
 }; 

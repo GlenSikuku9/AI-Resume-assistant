@@ -1,31 +1,9 @@
-const express = require('express');
-const admin = require('firebase-admin');
+import express from 'express';
+import admin from 'firebase-admin';
+import { isAdmin } from '../middleware/admin.js';
+
 const router = express.Router();
 
-// Middleware to check if user is admin
-const isAdmin = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split('Bearer ')[1];
-    if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
-    }
-    
-    const decodedToken = await admin.auth().verifyIdToken(token);
-    const userDoc = await admin.firestore()
-      .collection('users')
-      .doc(decodedToken.uid)
-      .get();
-    
-    if (!userDoc.data()?.isAdmin) {
-      return res.status(403).json({ error: 'Not authorized' });
-    }
-    
-    req.user = decodedToken;
-    next();
-  } catch (error) {
-    res.status(401).json({ error: 'Invalid token' });
-  }
-};
 
 // Get API usage statistics
 router.get('/api-usage', isAdmin, async (req, res) => {
@@ -104,4 +82,4 @@ router.put('/settings', isAdmin, async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 

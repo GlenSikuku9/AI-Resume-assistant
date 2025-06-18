@@ -1,7 +1,7 @@
-const Template = require('../models/Template');
+import Template from '../models/Template.js';
 
 // Get all active templates
-exports.getAllTemplates = async (req, res) => {
+export const getAllTemplates = async (req, res) => {
   try {
     const templates = await Template.getActiveTemplates();
     res.json(templates);
@@ -11,7 +11,7 @@ exports.getAllTemplates = async (req, res) => {
 };
 
 // Get template by ID
-exports.getTemplateById = async (req, res) => {
+export const getTemplateById = async (req, res) => {
   try {
     const template = await Template.getTemplateById(req.params.id);
     if (!template) {
@@ -24,7 +24,7 @@ exports.getTemplateById = async (req, res) => {
 };
 
 // Create initial resume based on template
-exports.createResumeFromTemplate = async (req, res) => {
+export const createResumeFromTemplate = async (req, res) => {
   try {
     const { templateId, jobDescriptionId, userInfoId } = req.body;
     
