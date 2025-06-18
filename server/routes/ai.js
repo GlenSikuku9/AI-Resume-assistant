@@ -1,11 +1,12 @@
-const express = require('express');
-const router = express.Router();
-const rateLimitMiddleware = require('../middleware/rateLimit');
-const {
+import express from 'express';
+import { rateLimitMiddleware } from '../middleware/rateLimit.js';
+import {
   generateResume,
   editSection,
   getKeywords
-} = require('../controllers/aiController');
+} from '../controllers/aiController.js';
+
+const router = express.Router();
 
 // Generate initial resume
 router.post('/generate', rateLimitMiddleware, generateResume);
@@ -16,4 +17,4 @@ router.post('/edit-section', rateLimitMiddleware, editSection);
 // Get keyword suggestions
 router.post('/keywords', rateLimitMiddleware, getKeywords);
 
-module.exports = router; 
+export default router; 

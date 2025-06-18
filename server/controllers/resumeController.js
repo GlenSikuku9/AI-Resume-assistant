@@ -1,4 +1,4 @@
-const { admin } = require('../config/firebase');
+import { admin } from '../config/firebase.js';
 
 const getTemplates = async (req, res) => {
   try {
@@ -90,7 +90,7 @@ const deleteResume = async (req, res) => {
   }
 };
 
-module.exports = {
+export {
   getTemplates,
   getUserResumes,
   createResume,
