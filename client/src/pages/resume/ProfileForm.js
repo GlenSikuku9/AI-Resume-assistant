@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { getFirestore, addDoc, collection } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { FaPlus, FaTrash } from 'react-icons/fa';
+import jobSeekerInfoService from '../../services/profileInfoService';
+import ResumeStepper from '../../components/ResumeStepper';
 import './ProfileForm.css';
 
 function ProfileForm() {
@@ -127,11 +129,24 @@ function ProfileForm() {
       setError('');
       setLoading(true);
 
-      const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
+      // Check if user is authenticated
+      if (!currentUser) {
+        throw new Error('You must be logged in to create a resume');
+      }
 
-      const db = getFirestore();
-      const resumeRef = await addDoc(collection(db, 'resumes'), {
-        userId: currentUser.uid,
+      // Get the Firebase user directly to access getIdToken
+      const auth = getAuth();
+      const firebaseUser = auth.currentUser;
+      
+      if (!firebaseUser) {
+        throw new Error('You must be logged in to create a resume');
+      }
+
+      const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
+      const selectedTemplate = JSON.parse(sessionStorage.getItem('selectedTemplate') || '{}');
+
+      // Create the resume data object
+      const resumeData = {
         jobDescription: jobData,
         personalInfo,
         education,
@@ -139,18 +154,45 @@ function ProfileForm() {
         skills,
         content: '',
         versions: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        templateId: selectedTemplate.id || null
+      };
+
+      // Use the server API to create the resume
+      const response = await fetch('/api/resume', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
+        },
+        body: JSON.stringify(resumeData)
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create resume');
+      }
+
+      const result = await response.json();
 
       // Clear session storage
       sessionStorage.removeItem('jobData');
+      sessionStorage.removeItem('jobInfoId');
 
       // Navigate to editor
-      navigate(`/editor/${resumeRef.id}`);
+      navigate(`/editor/${result.id}`);
     } catch (error) {
-      setError('Failed to create resume');
       console.error('Error creating resume:', error);
+      
+      // Handle different types of errors
+      if (error.code === 'permission-denied') {
+        setError('Permission denied. Please make sure you are logged in and try again.');
+      } else if (error.code === 'unauthenticated') {
+        setError('You must be logged in to create a resume. Please sign in and try again.');
+      } else if (error.message.includes('permission')) {
+        setError('Permission error. Please check your login status and try again.');
+      } else {
+        setError(error.message || 'Failed to create resume. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -158,6 +200,7 @@ function ProfileForm() {
 
   return (
     <div className="profile-form-container">
+      <ResumeStepper currentStep={3} />
       <Container>
         <div className="profile-form-header">
           <h2>Your Profile</h2>
@@ -228,7 +271,7 @@ function ProfileForm() {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>LinkedIn Profile</Form.Label>
+                  <Form.Label>LinkedIn Profile (Optional)</Form.Label>
                   <Form.Control
                     type="url"
                     name="linkedin"
@@ -236,11 +279,14 @@ function ProfileForm() {
                     onChange={handlePersonalInfoChange}
                     placeholder="https://linkedin.com/in/..."
                   />
+                  <Form.Text className="text-muted">
+                    Add your LinkedIn profile to showcase your professional network
+                  </Form.Text>
                 </Form.Group>
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Portfolio Website</Form.Label>
+                  <Form.Label>Portfolio Website (Optional)</Form.Label>
                   <Form.Control
                     type="url"
                     name="portfolio"
@@ -248,6 +294,9 @@ function ProfileForm() {
                     onChange={handlePersonalInfoChange}
                     placeholder="https://..."
                   />
+                  <Form.Text className="text-muted">
+                    Add your portfolio, GitHub, or personal website
+                  </Form.Text>
                 </Form.Group>
               </Col>
             </Row>
@@ -268,7 +317,10 @@ function ProfileForm() {
 
           {/* Experience Section */}
           <Card className="profile-form-section">
-            <h3>Work Experience</h3>
+            <h3>Work Experience (Optional)</h3>
+            <p className="text-muted mb-3">
+              If you're a student or recent graduate, you can include internships, part-time jobs, or leave this section empty.
+            </p>
             {experience.map((exp, index) => (
               <div key={index} className="experience-item">
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -287,25 +339,25 @@ function ProfileForm() {
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Company</Form.Label>
+                      <Form.Label>Company/Organization</Form.Label>
                       <Form.Control
                         type="text"
                         name="company"
                         value={exp.company}
                         onChange={(e) => handleExperienceChange(index, e)}
-                        required
+                        placeholder="Company name or organization"
                       />
                     </Form.Group>
                   </Col>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>Position</Form.Label>
+                      <Form.Label>Position/Role</Form.Label>
                       <Form.Control
                         type="text"
                         name="position"
                         value={exp.position}
                         onChange={(e) => handleExperienceChange(index, e)}
-                        required
+                        placeholder="Job title or role"
                       />
                     </Form.Group>
                   </Col>
@@ -320,7 +372,7 @@ function ProfileForm() {
                         name="location"
                         value={exp.location}
                         onChange={(e) => handleExperienceChange(index, e)}
-                        required
+                        placeholder="City, State or Remote"
                       />
                     </Form.Group>
                   </Col>
@@ -332,7 +384,6 @@ function ProfileForm() {
                         name="startDate"
                         value={exp.startDate}
                         onChange={(e) => handleExperienceChange(index, e)}
-                        required
                       />
                     </Form.Group>
                   </Col>
@@ -345,7 +396,6 @@ function ProfileForm() {
                         value={exp.endDate}
                         onChange={(e) => handleExperienceChange(index, e)}
                         disabled={exp.current}
-                        required={!exp.current}
                       />
                       <Form.Check
                         type="checkbox"
@@ -367,7 +417,6 @@ function ProfileForm() {
                     name="description"
                     value={exp.description}
                     onChange={(e) => handleExperienceChange(index, e)}
-                    required
                     placeholder="Describe your responsibilities and achievements..."
                   />
                   <Form.Text className="text-muted">
@@ -406,7 +455,7 @@ function ProfileForm() {
                 <Row>
                   <Col md={6}>
                     <Form.Group className="mb-3">
-                      <Form.Label>School</Form.Label>
+                      <Form.Label>School/University</Form.Label>
                       <Form.Control
                         type="text"
                         name="school"
@@ -544,7 +593,7 @@ function ProfileForm() {
             <Row>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Languages</Form.Label>
+                  <Form.Label>Languages (Optional)</Form.Label>
                   <Form.Control
                     type="text"
                     name="languages"
@@ -556,7 +605,7 @@ function ProfileForm() {
               </Col>
               <Col md={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Certifications</Form.Label>
+                  <Form.Label>Certifications (Optional)</Form.Label>
                   <Form.Control
                     type="text"
                     name="certifications"
@@ -564,6 +613,9 @@ function ProfileForm() {
                     onChange={handleSkillsChange}
                     placeholder="AWS Certified, PMP, etc..."
                   />
+                  <Form.Text className="text-muted">
+                    Include any relevant certifications or professional qualifications
+                  </Form.Text>
                 </Form.Group>
               </Col>
             </Row>

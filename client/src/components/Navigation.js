@@ -25,11 +25,7 @@ function Navigation() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="me-auto">
             {currentUser && (
-              <>
-                <Nav.Link as={Link} to="/templates">Create Resume</Nav.Link>
-                <Nav.Link as={Link} to="/job-form">Job Description</Nav.Link>
-                <Nav.Link as={Link} to="/profile-form">Profile</Nav.Link>
-              </>
+              <Nav.Link as={Link} to="/templates">Create Resume</Nav.Link>
             )}
           </Nav>
           <Nav>
