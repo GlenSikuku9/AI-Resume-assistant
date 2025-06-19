@@ -73,9 +73,61 @@ const updateSettings = async (req, res) => {
   }
 };
 
+const getJobSeekerAnalytics = async (req, res) => {
+  try {
+    const analyticsSnapshot = await admin.firestore()
+      .collection('JobSeekerAnalytics')
+      .get();
+
+    let totalResumesCreated = 0;
+    let totalApiCalls = 0;
+    let totalPDFDownloads = 0;
+    let totalAITokensUsed = 0;
+    let templateUsageCount = {};
+    let mostUsedTemplate = null;
+    let mostUsedTemplateCount = 0;
+    const userAnalytics = [];
+
+    analyticsSnapshot.forEach(doc => {
+      const data = doc.data();
+      userAnalytics.push({ id: doc.id, ...data });
+      totalResumesCreated += data.totalResumesCreated || 0;
+      totalApiCalls += data.totalApiCalls || 0;
+      totalPDFDownloads += data.totalPDFDownloads || 0;
+      totalAITokensUsed += data.totalAITokensUsed || 0;
+      if (data.templateUsageCount) {
+        Object.entries(data.templateUsageCount).forEach(([templateId, count]) => {
+          templateUsageCount[templateId] = (templateUsageCount[templateId] || 0) + count;
+        });
+      }
+    });
+
+    // Find most used template
+    Object.entries(templateUsageCount).forEach(([templateId, count]) => {
+      if (count > mostUsedTemplateCount) {
+        mostUsedTemplate = templateId;
+        mostUsedTemplateCount = count;
+      }
+    });
+
+    res.json({
+      totalResumesCreated,
+      totalApiCalls,
+      totalPDFDownloads,
+      totalAITokensUsed,
+      templateUsageCount,
+      mostUsedTemplate,
+      userAnalytics
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getApiUsage,
   getPerformanceMetrics,
   getUserStats,
-  updateSettings
+  updateSettings,
+  getJobSeekerAnalytics
 }; 

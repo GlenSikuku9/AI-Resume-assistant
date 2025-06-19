@@ -11,6 +11,7 @@ import aiRoutes from './routes/ai.js';
 import adminRoutes from './routes/admin.js';
 import jobInfoRoutes from './routes/jobInfo.js';
 import profileInfoRoutes from './routes/profileInfo.js';
+import templateRoutes from './routes/templateRoutes.js';
 
 // Initialize Firebase Admin
 initializeFirebase();
@@ -28,6 +29,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/job-description', jobInfoRoutes);
 app.use('/api/job-seeker-info', profileInfoRoutes);
+app.use('/api/templates', templateRoutes);
 
 // Error handling middleware
 app.use(errorHandler);

@@ -1,6 +1,7 @@
 import express from 'express';
 import admin from 'firebase-admin';
 import { isAdmin } from '../middleware/admin.js';
+import { getJobSeekerAnalytics } from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -81,5 +82,8 @@ router.put('/settings', isAdmin, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Get Job Seeker Analytics (new endpoint)
+router.get('/job-seeker-analytics', isAdmin, getJobSeekerAnalytics);
 
 export default router; 
