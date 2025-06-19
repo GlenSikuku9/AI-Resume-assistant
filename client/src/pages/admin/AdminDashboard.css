@@ -1,5 +1,6 @@
 .admin-dashboard {
   padding: 2rem 0;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
 }
 
 .dashboard-title {

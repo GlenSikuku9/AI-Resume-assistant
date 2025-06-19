@@ -4,13 +4,12 @@ import { useAuth } from '../../contexts/AuthContext';
 import './AdminDashboard.css';
 
 function AdminDashboard() {
+  const [analytics, setAnalytics] = useState(null);
   const [apiUsage, setApiUsage] = useState([]);
-  const [performance, setPerformance] = useState([]);
-  const [stats, setStats] = useState(null);
-  const [templateUsage, setTemplateUsage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
+  const [templateNames, setTemplateNames] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -19,7 +18,15 @@ function AdminDashboard() {
           'Authorization': `Bearer ${await currentUser.getIdToken()}`
         };
 
-        // Fetch API usage
+        // Fetch JobSeekerAnalytics
+        const analyticsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/job-seeker-analytics`, {
+          headers
+        });
+        const analyticsData = await analyticsResponse.json();
+        if (!analyticsResponse.ok) throw new Error(analyticsData.error);
+        setAnalytics(analyticsData);
+
+        // Fetch API usage for recent activity (optional, keep for table)
         const usageResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/api-usage`, {
           headers
         });
@@ -27,31 +34,16 @@ function AdminDashboard() {
         if (!usageResponse.ok) throw new Error(usageData.error);
         setApiUsage(usageData);
 
-        // Fetch performance metrics
-        const perfResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/performance`, {
-          headers
-        });
-        const perfData = await perfResponse.json();
-        if (!perfResponse.ok) throw new Error(perfData.error);
-        setPerformance(perfData);
-
-        // Fetch user statistics
-        const statsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/user-stats`, {
-          headers
-        });
-        const statsData = await statsResponse.json();
-        if (!statsResponse.ok) throw new Error(statsData.error);
-        setStats(statsData);
-
-        // Fetch template usage statistics
-        const templateResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/template-stats`, {
-          headers
-        });
-        const templateData = await templateResponse.json();
-        if (!templateResponse.ok) throw new Error(templateData.error);
-        setTemplateUsage(templateData);
+        // Fetch template names for display
+        const templatesRes = await fetch(`${process.env.REACT_APP_API_URL}/api/templates`);
+        const templates = await templatesRes.json();
+        if (Array.isArray(templates)) {
+          const nameMap = {};
+          templates.forEach(t => { nameMap[t.id] = t.name; });
+          setTemplateNames(nameMap);
+        }
       } catch (error) {
-        setError('Failed to fetch admin data');
+        setError('Failed to fetch admin analytics');
         console.error('Admin dashboard error:', error);
       } finally {
         setLoading(false);
@@ -76,17 +68,8 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="metric-card">
             <Card.Body>
-              <Card.Title>Total Users</Card.Title>
-              <h3>{stats?.totalUsers || 0}</h3>
-              <p className="text-muted">Registered accounts</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="metric-card">
-            <Card.Body>
               <Card.Title>Total Resumes</Card.Title>
-              <h3>{stats?.totalResumes || 0}</h3>
+              <h3>{analytics?.totalResumesCreated || 0}</h3>
               <p className="text-muted">Created resumes</p>
             </Card.Body>
           </Card>
@@ -94,8 +77,17 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="metric-card">
             <Card.Body>
+              <Card.Title>API Usage</Card.Title>
+              <h3>{analytics?.totalApiCalls || 0}</h3>
+              <p className="text-muted">Total API calls</p>
+            </Card.Body>
+          </Card>
+        </Col>
+        <Col md={3}>
+          <Card className="metric-card">
+            <Card.Body>
               <Card.Title>PDF Downloads</Card.Title>
-              <h3>{stats?.totalDownloads || 0}</h3>
+              <h3>{analytics?.totalPDFDownloads || 0}</h3>
               <p className="text-muted">Total downloads</p>
             </Card.Body>
           </Card>
@@ -103,9 +95,9 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="metric-card">
             <Card.Body>
-              <Card.Title>API Usage</Card.Title>
-              <h3>{stats?.totalApiCalls || 0}</h3>
-              <p className="text-muted">Total API calls</p>
+              <Card.Title>AI Tokens Used</Card.Title>
+              <h3>{analytics?.totalAITokensUsed || 0}</h3>
+              <p className="text-muted">Total AI tokens</p>
             </Card.Body>
           </Card>
         </Col>
@@ -116,22 +108,26 @@ function AdminDashboard() {
         <Col md={6}>
           <Card className="template-usage-card">
             <Card.Body>
-              <Card.Title>Most Used Templates</Card.Title>
+              <Card.Title>Template Usage</Card.Title>
               <div className="template-usage-list">
-                {templateUsage.map((template) => (
-                  <div key={template.id} className="template-usage-item">
+                {analytics?.templateUsageCount && Object.entries(analytics.templateUsageCount).map(([templateId, count]) => (
+                  <div key={templateId} className="template-usage-item">
                     <div className="template-info">
-                      <span className="template-name">{template.name}</span>
-                      <span className="template-count">{template.usageCount} uses</span>
+                      <span className="template-name">{templateNames[templateId] || templateId}</span>
+                      <span className="template-count">{count} uses</span>
                     </div>
                     <div className="template-bar">
-                      <div 
+                      <div
                         className="template-bar-fill"
-                        style={{ width: `${(template.usageCount / templateUsage[0].usageCount) * 100}%` }}
+                        style={{ width: `${(count / Math.max(...Object.values(analytics.templateUsageCount))) * 100}%` }}
                       />
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="mt-3">
+                <strong>Most Used Template: </strong>
+                {templateNames[analytics?.mostUsedTemplate] || analytics?.mostUsedTemplate || 'N/A'}
               </div>
             </Card.Body>
           </Card>
