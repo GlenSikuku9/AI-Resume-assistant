@@ -32,23 +32,8 @@ function Login() {
     }
   };
 
-  const handleResetPassword = async () => {
-    if (!email) {
-      return setError('Please enter your email address first');
-    }
-
-    try {
-      setError('');
-      setMessage('');
-      setLoading(true);
-      await resetPassword(email);
-      setMessage('Check your email for password reset instructions');
-    } catch (error) {
-      setError('Failed to reset password. Please try again.');
-      console.error('Reset password error:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleForgotPassword = () => {
+    navigate('/change-password');
   };
 
   return (
@@ -83,19 +68,7 @@ function Login() {
               placeholder="Enter your password"
               required
             />
-          </Form.Group>
-
-          <div className="forgot-password mb-3">
-            <Button
-              variant="link"
-              className="p-0 text-decoration-none"
-              onClick={handleResetPassword}
-              disabled={loading}
-            >
-              Forgot Password?
-            </Button>
-          </div>
-
+          </Form.Group>        
           <Button
             className="auth-button w-100"
             type="submit"

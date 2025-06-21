@@ -1,7 +1,7 @@
 import express from 'express';
 import admin from 'firebase-admin';
 import { isAdmin } from '../middleware/admin.js';
-import { getJobSeekerAnalytics } from '../controllers/adminController.js';
+import { getJobSeekerAnalytics, getAllUsers, deleteUser } from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -85,5 +85,11 @@ router.put('/settings', isAdmin, async (req, res) => {
 
 // Get Job Seeker Analytics (new endpoint)
 router.get('/job-seeker-analytics', isAdmin, getJobSeekerAnalytics);
+
+// List all users
+router.get('/users', isAdmin, getAllUsers);
+
+// Delete a user
+router.delete('/users/:userId', isAdmin, deleteUser);
 
 export default router; 
