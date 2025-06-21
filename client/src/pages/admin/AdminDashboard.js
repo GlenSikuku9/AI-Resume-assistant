@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Table, Alert } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminDashboard.css';
+import userService from '../../services/userService';
+import { getAuth } from 'firebase/auth';
 
 function AdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
@@ -10,12 +12,18 @@ function AdminDashboard() {
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
   const [templateNames, setTemplateNames] = useState({});
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [usersError, setUsersError] = useState('');
+  const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const firebaseUser = getAuth().currentUser;
+        const token = firebaseUser ? await firebaseUser.getIdToken() : '';
         const headers = {
-          'Authorization': `Bearer ${await currentUser.getIdToken()}`
+          'Authorization': `Bearer ${token}`
         };
 
         // Fetch JobSeekerAnalytics
@@ -42,6 +50,23 @@ function AdminDashboard() {
           templates.forEach(t => { nameMap[t.id] = t.name; });
           setTemplateNames(nameMap);
         }
+
+        // Fetch users for admin
+        const fetchUsers = async () => {
+          setUsersLoading(true);
+          setUsersError('');
+          try {
+            const usersList = await userService.fetchAllUsers();
+            setUsers(usersList);
+          } catch (err) {
+            setUsersError('Failed to fetch users');
+          } finally {
+            setUsersLoading(false);
+          }
+        };
+        if (currentUser?.isAdmin) {
+          fetchUsers();
+        }
       } catch (error) {
         setError('Failed to fetch admin analytics');
         console.error('Admin dashboard error:', error);
@@ -52,6 +77,23 @@ function AdminDashboard() {
 
     fetchData();
   }, [currentUser]);
+
+  const handleDeleteUser = async (userId) => {
+    if (userId === currentUser.uid) {
+      alert('You cannot delete your own admin account.');
+      return;
+    }
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) return;
+    setDeletingUserId(userId);
+    try {
+      await userService.deleteUser(userId);
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (err) {
+      alert('Failed to delete user: ' + err.message);
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
 
   if (loading) {
     return <div className="text-center">Loading...</div>;
@@ -189,6 +231,48 @@ function AdminDashboard() {
               ))}
             </tbody>
           </Table>
+        </Card.Body>
+      </Card>
+
+      {/* Users Table */}
+      <Card className="mb-4">
+        <Card.Body>
+          <Card.Title>All Users</Card.Title>
+          {usersError && <Alert variant="danger">{usersError}</Alert>}
+          {usersLoading ? (
+            <div>Loading users...</div>
+          ) : (
+            <Table responsive>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Admin</th>
+                  <th>Created At</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {users.map(user => (
+                  <tr key={user.id}>
+                    <td>{user.name || 'N/A'}</td>
+                    <td>{user.email}</td>
+                    <td>{user.isAdmin ? 'Yes' : 'No'}</td>
+                    <td>{user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</td>
+                    <td>
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => handleDeleteUser(user.id)}
+                        disabled={deletingUserId === user.id || user.id === currentUser.uid}
+                      >
+                        {deletingUserId === user.id ? 'Deleting...' : 'Delete'}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          )}
         </Card.Body>
       </Card>
     </Container>

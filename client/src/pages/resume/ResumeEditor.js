@@ -201,6 +201,11 @@ function ResumeEditor() {
 
   return (
     <Container fluid className="editor-no-bg px-0">
+      <div className="d-flex justify-content-end p-3">
+        <Button variant="secondary" onClick={() => navigate('/dashboard')}>
+          Go to Dashboard
+        </Button>
+      </div>
       <ResumeStepper currentStep={4} />
       <Row className="g-4 justify-content-center align-items-stretch editor-row-flex">
         {/* Editor Panel */}

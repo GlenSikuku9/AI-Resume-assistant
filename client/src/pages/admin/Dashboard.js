@@ -85,9 +85,17 @@ function Dashboard() {
                     </h5>
                   </div>
                   <Card.Text>
-                    Created: {new Date(resume.createdAt).toLocaleDateString()}
+                    Created: {resume.createdAt && resume.createdAt.toDate
+                      ? resume.createdAt.toDate().toLocaleDateString()
+                      : resume.createdAt
+                        ? new Date(resume.createdAt).toLocaleDateString()
+                        : 'N/A'}
                     <br />
-                    Last Updated: {new Date(resume.updatedAt).toLocaleDateString()}
+                    Last Updated: {resume.updatedAt && resume.updatedAt.toDate
+                      ? resume.updatedAt.toDate().toLocaleDateString()
+                      : resume.updatedAt
+                        ? new Date(resume.updatedAt).toLocaleDateString()
+                        : 'N/A'}
                   </Card.Text>
                   <Button
                     variant="primary"

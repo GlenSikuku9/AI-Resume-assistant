@@ -124,10 +124,42 @@ const getJobSeekerAnalytics = async (req, res) => {
   }
 };
 
+// List all users (for admin dashboard)
+const getAllUsers = async (req, res) => {
+  try {
+    const usersSnapshot = await admin.firestore()
+      .collection('users')
+      .get();
+    const users = [];
+    usersSnapshot.forEach(doc => {
+      users.push({ id: doc.id, ...doc.data() });
+    });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Delete a user (from Auth and Firestore)
+const deleteUser = async (req, res) => {
+  const { userId } = req.params;
+  try {
+    // Delete from Firebase Auth
+    await admin.auth().deleteUser(userId);
+    // Delete from Firestore
+    await admin.firestore().collection('users').doc(userId).delete();
+    res.json({ message: 'User deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getApiUsage,
   getPerformanceMetrics,
   getUserStats,
   updateSettings,
-  getJobSeekerAnalytics
+  getJobSeekerAnalytics,
+  getAllUsers,
+  deleteUser
 }; 
