@@ -9,7 +9,7 @@ import {
 const router = express.Router();
 
 // Generate initial resume
-router.post('/generate', rateLimitMiddleware, generateResume);
+router.post('/generate',  generateResume);
 
 // Edit specific section
 router.post('/edit-section', rateLimitMiddleware, editSection);
