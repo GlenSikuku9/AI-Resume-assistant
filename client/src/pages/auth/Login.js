@@ -10,8 +10,8 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
-  const { login, resetPassword } = useAuth();
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,8 +21,12 @@ function Login() {
       setMessage('');
       setLoading(true);
 
-      await login(email, password);
-      navigate('/templates');
+      const user = await login(email, password);
+      if (user.isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/dashboard');
+      }
 
     } catch (error) {
       setError('Failed to sign in. Please check your credentials.');
@@ -32,9 +36,6 @@ function Login() {
     }
   };
 
-  const handleForgotPassword = () => {
-    navigate('/change-password');
-  };
 
   return (
     <div className="auth-container">
