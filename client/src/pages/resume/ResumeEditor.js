@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Form, Alert, Card } from 'react-bootstrap';
+import { Container, Row, Col, Button, Form, Alert, Card, Spinner } from 'react-bootstrap';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
@@ -9,6 +9,7 @@ import html2pdf from 'html2pdf.js';
 import { FaDownload, FaSave, FaEdit, FaRobot } from 'react-icons/fa';
 import './ResumeEditor.css';
 import ResumeStepper from '../../components/ResumeStepper';
+import Modal from 'react-bootstrap/Modal';
 
 // Add Quill align style if not already present
 const Align = Quill.import('formats/align');
@@ -45,6 +46,7 @@ function ResumeEditor() {
   const { resumeId } = useParams();
   const { currentUser } = useAuth();
   const navigate = useNavigate();
+  const [showPreview, setShowPreview] = useState(false);
 
   // Fetch resume data
   useEffect(() => {
@@ -196,7 +198,12 @@ function ResumeEditor() {
   }
 
   if (loading) {
-    return <div className="text-center">Loading...</div>;
+    return (
+      <div className="text-center" style={{ marginTop: '100px' }}>
+        <Spinner animation="border" role="status" />
+        <div>Loading your resume draft...</div>
+      </div>
+    );
   }
 
   return (
@@ -210,17 +217,17 @@ function ResumeEditor() {
       <Row className="g-4 justify-content-center align-items-stretch editor-row-flex">
         {/* Editor Panel */}
         <Col md={7} className="d-flex">
-          <Card className="editor-modern-card flex-grow-1">
+          <Card className="editor-modern-card flex-grow-1 d-flex flex-column">
             <div className="editor-modern-header d-flex align-items-center mb-3">
               <FaEdit className="me-2 text-primary" size={22} />
               <h4 className="mb-0">Resume Editor</h4>
             </div>
-            <div className="editor-modern-quill">
+            <div className="editor-modern-quill flex-grow-1" style={{ minHeight: 0, overflowY: 'auto' }}>
               <ReactQuill
                 theme="snow"
                 value={content}
                 onChange={setContent}
-                style={{ height: 'calc(60vh - 60px)' }}
+                style={{ height: '100%' }}
                 modules={quillModules}
               />
             </div>
@@ -245,6 +252,12 @@ function ResumeEditor() {
               >
                 <FaDownload className="me-2" />
                 Export PDF
+              </Button>
+              <Button
+                variant="info"
+                onClick={() => setShowPreview(true)}
+              >
+                Preview
               </Button>
             </div>
           </Card>
@@ -289,6 +302,30 @@ function ResumeEditor() {
         </Col>
       </Row>
       {error && <Alert variant="danger" className="mt-3 text-center w-75 mx-auto">{error}</Alert>}
+      <Modal
+        show={showPreview}
+        onHide={() => setShowPreview(false)}
+        size="lg"
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Resume Preview</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ minHeight: '60vh', background: '#fff', padding: 24 }}>
+            <div dangerouslySetInnerHTML={{ __html: content }} />
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowPreview(false)}>
+            Close
+          </Button>
+          <Button variant="success" onClick={handleExport}>
+            <FaDownload className="me-2" />
+            Export PDF
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </Container>
   );
 }
