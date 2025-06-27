@@ -24,10 +24,13 @@ const generateResume = async (req, res) => {
       return res.json(cachedResponse);
     }
 
+    // Prepare system prompt for Together AI (generate resume)
+    const generateSystemPrompt = `You are a helpful assistant that generates professional, ATS-compliant resumes. Return ONLY the resume as valid HTML, with proper formatting as per the provided template. Do NOT include any explanations, leading words, or extra text—just the HTML resume content. Always follow these key characteristics for ATS compliance: Optimize for relevant keywords from the job description, use strong action verbs and success metrics, prioritize quality experience over quantity, use a clean, simple format with standard section headings, avoid graphics, tables, or unusual formatting, and focus on good formatting and clarity.`;
+
     // Prepare prompt for Together AI
     const prompt = `Create a professional 1-2 page resume based on the following information.\n\nJob Description: ${jobDescription}\nPersonal Information: ${JSON.stringify(personalInfo)}\n\nFormat the resume using this template structure and styling:\nTemplate Name: ${template.name}\nDescription: ${template.description}\nSections (in order): ${template.defaultOrder.join(', ')}\nSection Details: ${JSON.stringify(template.sections)}\nStyling: ${JSON.stringify(template.styling)}\n\nEnsure the resume is ATS-compliant and tailored to the job description, using the template's layout and style.\n\nKey characteristics for ATS compliance:\n- Optimize for relevant keywords from the job description\n- Use strong action verbs and success metrics\n- Prioritize quality experience over quantity\n- Use a clean, simple format with standard section headings\n- Avoid graphics, tables, or unusual formatting\n- Focus on good formatting and clarity.`;
 
-    const aiContent = await callTogetherAI(prompt, 5000);
+    const aiContent = await callTogetherAI(prompt, 5000, generateSystemPrompt);
     // Cache the response
     cacheResponse(cacheKey, aiContent);
 
@@ -59,28 +62,43 @@ const generateResume = async (req, res) => {
 
 const editSection = async (req, res) => {
   try {
-    const { userId, section, content, instruction } = req.body;
+    const { userId, resumeId, content, instruction } = req.body;
+
+    // Fetch the resume to get templateId
+    const resumeDoc = await admin.firestore().collection('resumes').doc(resumeId).get();
+    if (!resumeDoc.exists) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    const resume = resumeDoc.data();
+    const templateId = resume.templateId;
+    if (!templateId) {
+      return res.status(400).json({ error: 'No templateId found for this resume' });
+    }
+    // Fetch the template
+    const templateDoc = await admin.firestore().collection('templates').doc(templateId).get();
+    if (!templateDoc.exists) {
+      return res.status(404).json({ error: 'Template not found' });
+    }
+    const template = templateDoc.data();
 
     // Check cache
-    const cacheKey = generateCacheKey(userId, 'edit', { section, content, instruction });
+    const cacheKey = generateCacheKey(userId, 'edit', { resumeId, content, instruction });
     const cachedResponse = getCachedResponse(cacheKey);
     if (cachedResponse) {
       return res.json(cachedResponse);
     }
 
-    // Prepare prompt for Together AI
-    const prompt = `Edit the following resume section based on the instruction:
-    Section: ${section}
-    Current Content: ${content}
-    Instruction: ${instruction}
-    Keep the formatting consistent and ensure content remains ATS-compliant.`;
+    // Prepare system prompt for Together AI (edit section)
+    const editSystemPrompt = `You are a helpful assistant that edits sections of professional resumes. Return ONLY the edited section as valid HTML, formatted according to the provided template. Do NOT include explanations, leading words, or extra text—just the HTML content for the section. Always follow these key characteristics for ATS compliance: Optimize for relevant keywords from the job description, use strong action verbs and success metrics, prioritize quality experience over quantity, use a clean, simple format with standard section headings, avoid graphics, tables, or unusual formatting, and focus on good formatting and clarity.`;
 
-    const data = await callTogetherAI(prompt, 1024);
-    
+    // Prepare prompt for Together AI
+    const prompt = `Edit the following resume section based on the instruction. Format the result using this template structure and styling:\nTemplate Name: ${template.name}\nDescription: ${template.description}\nSections (in order): ${template.defaultOrder.join(', ')}\nSection Details: ${JSON.stringify(template.sections)}\nStyling: ${JSON.stringify(template.styling)}\n\nCurrent Content: ${content}\nInstruction: ${instruction}\nKeep the formatting consistent and ensure content remains ATS-compliant.`;
+
+    const data = await callTogetherAI(prompt, 5000, editSystemPrompt);
     // Cache the response
     cacheResponse(cacheKey, data);
 
-    res.json(data);
+    res.json({ content: data });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -113,8 +131,28 @@ const getKeywords = async (req, res) => {
   }
 };
 
+const getChatMessages = async (req, res) => {
+  try {
+    const { resumeId } = req.params;
+    const chatSnapshot = await admin.firestore()
+      .collection('resumes')
+      .doc(resumeId)
+      .collection('aiChats')
+      .orderBy('timestamp', 'asc')
+      .get();
+    const messages = [];
+    chatSnapshot.forEach(doc => {
+      messages.push({ id: doc.id, ...doc.data() });
+    });
+    res.json(messages);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   generateResume,
   editSection,
-  getKeywords
+  getKeywords,
+  getChatMessages
 }; 

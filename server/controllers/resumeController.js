@@ -122,10 +122,23 @@ const deleteResume = async (req, res) => {
   }
 };
 
+const getResumeById = async (req, res) => {
+  try {
+    const doc = await admin.firestore().collection('resumes').doc(req.params.resumeId).get();
+    if (!doc.exists) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    res.json({ id: doc.id, ...doc.data() });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getTemplates,
   getUserResumes,
   createResume,
   updateResume,
-  deleteResume
+  deleteResume,
+  getResumeById
 }; 

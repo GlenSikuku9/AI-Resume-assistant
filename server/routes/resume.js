@@ -5,7 +5,8 @@ import {
   getUserResumes,
   createResume,
   updateResume,
-  deleteResume
+  deleteResume,
+  getResumeById
 } from '../controllers/resumeController.js';
 
 const router = express.Router();
@@ -19,10 +20,10 @@ const authenticateUser = async (req, res, next) => {
     }
 
     const token = authHeader.split('Bearer ')[1];
-    console.log('Verifying token...');
+    // console.log('Verifying token...');
     
     const decodedToken = await admin.auth().verifyIdToken(token);
-    console.log('Token verified, user:', decodedToken);
+    // console.log('Token verified, user:', decodedToken);
     
     req.user = decodedToken;
     next();
@@ -46,5 +47,8 @@ router.put('/:resumeId', authenticateUser, updateResume);
 
 // Delete resume
 router.delete('/:resumeId', authenticateUser, deleteResume);
+
+// Get resume by ID
+router.get('/:resumeId', authenticateUser, getResumeById);
 
 export default router; 

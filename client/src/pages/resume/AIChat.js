@@ -1,160 +1,120 @@
 import React, { useState, useRef, useEffect } from 'react';
-import axios from 'axios';
 import { Button, Form, Card, Alert, InputGroup } from 'react-bootstrap';
 import { FaPaperPlane, FaRobot, FaUser } from 'react-icons/fa';
-
-const AIChat = ({ resumeId, onUpdateSection }) => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+import resumeEditorService from '../../services/resumeEditorService';
+import "./ResumeEditor.css";
+const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, selection, setSelection, quillRef, onReplaceReferencedText }) => {
+  const [chatMessages, setChatMessages] = useState([]);
+  const [userMessage, setUserMessage] = useState('');
+  const [chatError, setChatError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
   const chatEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [chatMessages]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    const userMessage = input.trim();
-    setInput('');
-    setMessages(prev => [...prev, { type: 'user', content: userMessage }]);
-    setIsLoading(true);
-    setError('');
-
+  const handleAiChat = async () => {
     try {
-      const response = await axios.post('/api/ai/edit-section', {
+      setChatError('');
+      let contentToSend = referencedHtml;
+      if (!contentToSend) {
+        setChatError('Please highlight a section in the editor, click Reference, and then send your instruction.');
+        return;
+      }
+      setIsLoading(true);
+      const response = await resumeEditorService.editSectionAI({
+        userId: currentUser.uid,
         resumeId,
-        instruction: userMessage,
-        section: 'current' // This will be determined by the AI based on the instruction
+        content: contentToSend,
+        instruction: userMessage
       });
-
-      if (response.data.error) {
-        throw new Error(response.data.error);
+      setUserMessage('');
+      setChatMessages(prev => ([
+        ...prev,
+        { role: 'user', content: userMessage, referenced: referencedHtml, timestamp: new Date().toISOString() },
+        { role: 'ai', content: response.content || '', timestamp: new Date().toISOString() }
+      ]));
+      // Replace the referenced text in the editor with the AI's response
+      if (onReplaceReferencedText) {
+        onReplaceReferencedText(response.text || response.content || '');
       }
-
-      setMessages(prev => [...prev, { 
-        type: 'ai', 
-        content: response.data.message,
-        suggestions: response.data.suggestions,
-        changes: response.data.changes
-      }]);
-
-      if (response.data.updatedContent) {
-        onUpdateSection(response.data.updatedContent);
-      }
+      // Only clear referencedHtml after successful response
+      setReferencedHtml('');
     } catch (error) {
-      setError(error.message || 'Failed to process your request');
-      setMessages(prev => [...prev, { 
-        type: 'error', 
-        content: error.message || 'Sorry, there was an error processing your request.' 
-      }]);
+      setChatError('Failed to get AI response');
+      console.error('AI chat error:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="shadow-sm">
-      <Card.Header className="bg-white py-3">
-        <div className="d-flex align-items-center">
-          <FaRobot className="me-2 text-primary" size={20} />
-          <h5 className="mb-0">AI Assistant</h5>
-        </div>
-      </Card.Header>
-      
-      <Card.Body className="p-3">
-        {error && (
-          <Alert variant="danger" className="mb-3">
-            {error}
-          </Alert>
-        )}
-        
-        <div className="chat-messages bg-light rounded p-3 mb-3" style={{ height: '400px', overflowY: 'auto' }}>
-          {messages.map((message, index) => (
-            <Card 
-              key={index} 
-              className={`mb-3 border-0 shadow-sm ${
-                message.type === 'user' 
-                  ? 'ms-auto bg-primary text-white' 
-                  : 'me-auto bg-white'
-              }`}
-              style={{ maxWidth: '80%' }}
-            >
-              <Card.Body className="p-3">
-                <div className="d-flex align-items-center mb-2">
-                  {message.type === 'user' ? (
-                    <FaUser className="me-2" size={14} />
-                  ) : (
-                    <FaRobot className="me-2" size={14} />
-                  )}
-                  <small className="fw-bold">
-                    {message.type === 'user' ? 'You' : 'AI Assistant'}
-                  </small>
+    <Card className="ai-modern-card flex-grow-1">
+      <div className="ai-modern-header d-flex align-items-center mb-3">
+        <FaRobot className="me-2 text-primary" size={22} />
+        <h4 className="mb-0">AI Assistant</h4>
+      </div>
+      <div className="ai-modern-body d-flex flex-column flex-grow-1">
+        <div className="ai-modern-chat-messages flex-grow-1 mb-3">
+          {chatError && (
+            <Alert variant="info" className="py-1 px-2 mb-2">{chatError}</Alert>
+          )}
+          {referencedHtml && (
+            <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+              <span>Referenced:</span>
+              <div style={{ marginLeft: 6, marginRight: 6, flex: 1 }}>{referencedHtml}</div>
+              <button
+                style={{ background: 'transparent', border: 'none', color: '#888', fontWeight: 'bold', fontSize: '1.1em', cursor: 'pointer', padding: 0 }}
+                aria-label="Clear referenced text"
+                onClick={() => {
+                  setReferencedHtml('');
+                  // Clear selection in Quill
+                  const quill = quillRef.current?.getEditor();
+                  if (quill) {
+                    quill.setSelection(null);
+                  }
+                  setSelection(null);
+                }}
+              >
+                ×
+              </button>
+            </div>
+          )}
+          {chatMessages.map((msg, idx) => (
+            <div key={msg.id || idx} className={`ai-chat-bubble ai-chat-bubble-${msg.role} mb-2`}>
+              <span className="fw-bold">{msg.role === 'user' ? 'You' : 'AI'}:</span>
+              {msg.referenced && (
+                <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4 }}>
+                  <span>Referenced:</span>
+                  <div>{msg.referenced}</div>
                 </div>
-
-                <div className="message-content">
-                  {message.content}
-                </div>
-                
-                {message.suggestions && (
-                  <div className="mt-3 suggestions bg-light rounded p-2">
-                    <strong className="d-block mb-2">Suggested Keywords:</strong>
-                    <div className="d-flex flex-wrap gap-2">
-                      {message.suggestions.map((suggestion, idx) => (
-                        <span 
-                          key={idx}
-                          className="badge bg-white text-dark border"
-                        >
-                          {suggestion}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {message.changes && (
-                  <div className="mt-3 changes bg-light rounded p-2">
-                    <strong className="d-block mb-2">Changes Made:</strong>
-                    <small className="text-muted">
-                      {message.changes}
-                    </small>
-                  </div>
-                )}
-              </Card.Body>
-            </Card>
+              )}
+              <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+            </div>
           ))}
           <div ref={chatEndRef} />
         </div>
-
-        <Form onSubmit={handleSubmit}>
-          <InputGroup>
+        <Form onSubmit={e => { e.preventDefault(); handleAiChat(); }}>
+          <Form.Group className="mb-2">
             <Form.Control
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask for specific improvements (e.g., 'Strengthen my Python experience')"
+              as="textarea"
+              rows={3}
+              value={userMessage}
+              onChange={e => setUserMessage(e.target.value)}
+              placeholder="Ask the AI to help improve your resume..."
+              className="ai-modern-input"
               disabled={isLoading}
-              className="border-end-0"
             />
-            <Button 
-              type="submit" 
-              variant="primary" 
-              disabled={isLoading || !input.trim()}
-              className="d-flex align-items-center"
-            >
-              {isLoading ? (
-                <span className="spinner-border spinner-border-sm" />
-              ) : (
-                <FaPaperPlane />
-              )}
+          </Form.Group>
+          <div className="d-grid">
+            <Button type="submit" variant="primary" disabled={!userMessage.trim() || isLoading}>
+              {isLoading ? 'Sending...' : 'Send'}
             </Button>
-          </InputGroup>
+          </div>
         </Form>
-      </Card.Body>
+      </div>
     </Card>
   );
 };

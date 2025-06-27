@@ -91,7 +91,7 @@
 }
 
 .ai-modern-card {
-  background: linear-gradient(120deg, #fff 80%, #e0eafc 100%);
+  background: #fff;
   border-radius: 1.25rem;
   box-shadow: 0 4px 24px rgba(75,108,183,0.10);
   border-right: 6px solid #4b6cb7;
@@ -126,6 +126,7 @@
   font-size: 1.05rem;
   color: #202124;
   box-shadow: 0 1.5px 6px rgba(75,108,183,0.04);
+  background-image: none;
 }
 
 .ai-chat-bubble {
