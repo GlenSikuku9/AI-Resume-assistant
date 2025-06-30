@@ -1,9 +1,10 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import dotenv from 'dotenv';
+
 import { initializeFirebase } from './config/firebase.js'; // Ensure .js extension
 import { errorHandler } from './middleware/errorHandler.js';
-
 // Import routes with .js extension and assuming they use default exports
 import authRoutes from './routes/auth.js';
 import resumeRoutes from './routes/resume.js';
@@ -15,6 +16,7 @@ import templateRoutes from './routes/templateRoutes.js';
 
 // Initialize Firebase Admin
 initializeFirebase();
+dotenv.config();
 
 const app = express();
 

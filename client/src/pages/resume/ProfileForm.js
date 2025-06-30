@@ -124,20 +124,17 @@ function ProfileForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setError('');
       setLoading(true);
 
-      // Check if user is authenticated
       if (!currentUser) {
         throw new Error('You must be logged in to create a resume');
       }
 
-      // Get the Firebase user directly to access getIdToken
       const auth = getAuth();
       const firebaseUser = auth.currentUser;
-      
       if (!firebaseUser) {
         throw new Error('You must be logged in to create a resume');
       }
@@ -145,31 +142,31 @@ function ProfileForm() {
       const jobData = JSON.parse(sessionStorage.getItem('jobData') || '{}');
       const selectedTemplate = JSON.parse(sessionStorage.getItem('selectedTemplate') || '{}');
 
-      // Create the resume data object
-      const resumeData = {
+      // Prepare the payload for the AI endpoint
+      const payload = {
+        userId: currentUser.uid,
         jobDescription: jobData,
-        personalInfo,
-        education,
-        experience,
-        skills,
-        content: '',
-        versions: [],
+        personalInfo: {
+          ...personalInfo,
+          education,
+          experience,
+          skills
+        },
         templateId: selectedTemplate.id || null
       };
 
-      // Use the server API to create the resume
-      const response = await fetch('/api/resume', {
+      // Call the AI backend to generate and save the resume
+      const response = await fetch('/api/ai/generate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${await firebaseUser.getIdToken()}`
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(resumeData)
+        body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create resume');
+        throw new Error(errorData.error || 'Failed to generate resume');
       }
 
       const result = await response.json();
@@ -178,21 +175,10 @@ function ProfileForm() {
       sessionStorage.removeItem('jobData');
       sessionStorage.removeItem('jobInfoId');
 
-      // Navigate to editor
+      // Redirect to ResumeEditor with the new resume ID
       navigate(`/editor/${result.id}`);
     } catch (error) {
-      console.error('Error creating resume:', error);
-      
-      // Handle different types of errors
-      if (error.code === 'permission-denied') {
-        setError('Permission denied. Please make sure you are logged in and try again.');
-      } else if (error.code === 'unauthenticated') {
-        setError('You must be logged in to create a resume. Please sign in and try again.');
-      } else if (error.message.includes('permission')) {
-        setError('Permission error. Please check your login status and try again.');
-      } else {
-        setError(error.message || 'Failed to create resume. Please try again.');
-      }
+      setError(error.message || 'Failed to generate resume. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -633,7 +619,7 @@ function ProfileForm() {
               type="submit"
               disabled={loading}
             >
-              {loading ? 'Saving...' : 'Create Resume'}
+              {loading ? 'Generating...' : 'Create Resume'}
             </Button>
           </div>
         </Form>
