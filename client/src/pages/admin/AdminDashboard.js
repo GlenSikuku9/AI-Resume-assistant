@@ -7,7 +7,6 @@ import { getAuth } from 'firebase/auth';
 
 function AdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
-  const [apiUsage, setApiUsage] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const { currentUser } = useAuth();
@@ -32,21 +31,13 @@ function AdminDashboard() {
         const totalResumesData = await totalResumesResponse.json();
         setTotalResumes(totalResumesData.totalResumes || 0);
 
-        // Fetch JobSeekerAnalytics
-        const analyticsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/job-seeker-analytics`, {
+        // Fetch Admin analytics
+        const analyticsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/admin-analytics`, {
           headers
         });
         const analyticsData = await analyticsResponse.json();
         if (!analyticsResponse.ok) throw new Error(analyticsData.error);
         setAnalytics(analyticsData);
-
-        // Fetch API usage for recent activity (optional, keep for table)
-        const usageResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/api-usage`, {
-          headers
-        });
-        const usageData = await usageResponse.json();
-        if (!usageResponse.ok) throw new Error(usageData.error);
-        setApiUsage(usageData);
 
         // Fetch template names for display
         const templatesRes = await fetch(`${process.env.REACT_APP_API_URL}/api/templates`);
@@ -125,15 +116,6 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="metric-card">
             <Card.Body>
-              <Card.Title>API Usage</Card.Title>
-              <h3>{analytics?.totalApiCalls || 0}</h3>
-              <p className="text-muted">Total API calls</p>
-            </Card.Body>
-          </Card>
-        </Col>
-        <Col md={3}>
-          <Card className="metric-card">
-            <Card.Body>
               <Card.Title>PDF Downloads</Card.Title>
               <h3>{analytics?.totalPDFDownloads || 0}</h3>
               <p className="text-muted">Total downloads</p>
@@ -180,65 +162,7 @@ function AdminDashboard() {
             </Card.Body>
           </Card>
         </Col>
-        <Col md={6}>
-          <Card className="recent-activity-card">
-            <Card.Body>
-              <Card.Title>Recent Activity</Card.Title>
-              <Table responsive className="activity-table">
-                <thead>
-                  <tr>
-                    <th>Time</th>
-                    <th>User</th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {apiUsage.slice(0, 5).map((usage) => (
-                    <tr key={usage.id}>
-                      <td>{new Date(usage.timestamp).toLocaleTimeString()}</td>
-                      <td>{usage.userId}</td>
-                      <td>{usage.endpoint}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </Card.Body>
-          </Card>
-        </Col>
       </Row>
-
-      {/* API Usage Details */}
-      <Card className="mb-4">
-        <Card.Body>
-          <Card.Title>API Usage Details</Card.Title>
-          <Table responsive>
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>User</th>
-                <th>Endpoint</th>
-                <th>Response Time</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {apiUsage.map((usage) => (
-                <tr key={usage.id}>
-                  <td>{new Date(usage.timestamp).toLocaleString()}</td>
-                  <td>{usage.userId}</td>
-                  <td>{usage.endpoint}</td>
-                  <td>{usage.responseTime}ms</td>
-                  <td>
-                    <span className={`badge bg-${usage.status === 200 ? 'success' : 'danger'}`}>
-                      {usage.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Card.Body>
-      </Card>
 
       {/* Users Table */}
       <Card className="mb-4">
