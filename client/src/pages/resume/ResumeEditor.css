@@ -15,12 +15,13 @@
   border-radius: 1.25rem;
   box-shadow: 0 6px 24px rgba(75,108,183,0.10), 0 1.5px 6px rgba(24,40,72,0.06);
   border-left: 6px solid #4b6cb7;
-  padding: 2.5rem 2rem 2rem 2.5rem;
+  padding: 2.5rem 2rem 0 2.5rem;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 70vh;
   margin-right: 1.5rem;
+  height: 80vh;
+  min-height: 0;
+  position: relative;
 }
 
 .editor-modern-header {
@@ -31,15 +32,25 @@
 }
 
 .editor-modern-quill {
-  flex-grow: 1;
-  min-height: 0;
-  overflow-y: auto;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   background: #f4f6fa;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(75,108,183,0.06);
   padding: 1rem;
   border: 1.5px solid #e0eafc;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0;
+  overflow: visible;
+  height: auto;
+}
+
+.editor-scrollable-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .editor-modern-quill .ql-toolbar {
@@ -83,6 +94,10 @@
 }
 
 .editor-modern-quill .ql-container {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow: visible !important;
   background: #fff;
   border-radius: 0 0 10px 10px;
   border: none;
@@ -135,15 +150,15 @@
   border-radius: 18px;
   margin-bottom: 0.5rem;
   font-size: 1.05rem;
-  background: #e0eafc;
-  color: #182848;
+  background: #f4f6fa;
+  color: #222;
   box-shadow: 0 1.5px 6px rgba(75,108,183,0.04);
   max-width: 90%;
 }
 
 .ai-chat-bubble-ai {
-  background: linear-gradient(90deg, #4b6cb7 10%, #e0eafc 100%);
-  color: #fff;
+  background: #e0eafc;
+  color: #182848;
   font-weight: 500;
 }
 
@@ -362,4 +377,44 @@
 .suggestions .badge:hover {
   cursor: pointer;
   background-color: #e9ecef !important;
+}
+
+/* Move ResumeStepper up and add margin below */
+.resume-stepper-top {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Disclaimer style */
+.resume-disclaimer {
+  text-align: center;
+  color: #b71c1c;
+  font-size: 1.05rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  background: #fff3e0;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ffe0b2;
+}
+
+/* Remove sticky action pane styles */
+.editor-action-pane {
+  position: static;
+  background: none;
+  border-top: none;
+  padding-top: 0;
+  padding-bottom: 0;
+  z-index: auto;
+}
+
+.editor-action-buttons {
+  position: sticky;
+  bottom: 0;
+  background: #fff;
+  z-index: 2;
+  border-top: 1px solid #e0eafc;
+  padding-top: 1rem;
+  margin-top: 0;
 } 

@@ -15,6 +15,21 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
+  useEffect(() => {
+    const fetchChats = async () => {
+      if (!resumeId) return;
+      try {
+        const messages = await resumeEditorService.fetchChatMessages(resumeId);
+        console.log('AIChat loaded messages:', messages);
+        setChatMessages(messages);
+      } catch (err) {
+        setChatError('Failed to load chat history');
+        console.error('Fetch chat error:', err);
+      }
+    };
+    fetchChats();
+  }, [resumeId]);
+
   const handleAiChat = async () => {
     try {
       setChatError('');
@@ -85,13 +100,22 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
           {chatMessages.map((msg, idx) => (
             <div key={msg.id || idx} className={`ai-chat-bubble ai-chat-bubble-${msg.role} mb-2`}>
               <span className="fw-bold">{msg.role === 'user' ? 'You' : 'AI'}:</span>
-              {msg.referenced && (
-                <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4 }}>
-                  <span>Referenced:</span>
-                  <div>{msg.referenced}</div>
-                </div>
+              {msg.role === 'user' && (
+                <>
+                  {msg.instruction && (
+                    <div style={{ fontSize: '0.98em', marginBottom: 2 }}><strong>Instruction:</strong> {msg.instruction}</div>
+                  )}
+                  {msg.referenced && (
+                    <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4 }}>
+                      <span>Referenced:</span>
+                      <div>{msg.referenced}</div>
+                    </div>
+                  )}
+                </>
               )}
-              <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+              {msg.role === 'ai' && (
+                <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+              )}
             </div>
           ))}
           <div ref={chatEndRef} />

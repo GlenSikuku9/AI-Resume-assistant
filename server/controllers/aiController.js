@@ -94,9 +94,40 @@ const editSection = async (req, res) => {
     // Prepare prompt for Together AI
     const prompt = `Edit the following resume section based on the instruction. Format the result using this template structure and styling:\nTemplate Name: ${template.name}\nDescription: ${template.description}\nSections (in order): ${template.defaultOrder.join(', ')}\nSection Details: ${JSON.stringify(template.sections)}\nStyling: ${JSON.stringify(template.styling)}\n\nCurrent Content: ${content}\nInstruction: ${instruction}\nKeep the formatting consistent and ensure content remains ATS-compliant.`;
 
+    // Save user chat message
+    const now = admin.firestore.FieldValue.serverTimestamp();
+    const userChat = {
+      userId,
+      resumeId,
+      role: 'user',
+      content, // This is the referenced section or the whole resume
+      referenced: content, // If you want to distinguish, you can set to null if content is the whole resume
+      instruction,
+      createdAt: now,
+      updatedAt: now,
+      timestamp: now,
+    };
+    await admin.firestore().collection('aiChats').add(userChat);
+
+    // Call AI
     const data = await callTogetherAI(prompt, 5000, editSystemPrompt);
+
+    // Save AI chat message
+    const aiChat = {
+      userId,
+      resumeId,
+      role: 'ai',
+      content: data, // AI's HTML response
+      referenced: content,
+      instruction: null,
+      createdAt: now,
+      updatedAt: now,
+      timestamp: now,
+    };
+    await admin.firestore().collection('aiChats').add(aiChat);
+
     // Cache the response
-    cacheResponse(cacheKey, data);
+    cacheResponse(cacheKey, { content: data });
 
     res.json({ content: data });
   } catch (error) {
@@ -135,9 +166,8 @@ const getChatMessages = async (req, res) => {
   try {
     const { resumeId } = req.params;
     const chatSnapshot = await admin.firestore()
-      .collection('resumes')
-      .doc(resumeId)
       .collection('aiChats')
+      .where('resumeId', '==', resumeId)
       .orderBy('timestamp', 'asc')
       .get();
     const messages = [];
@@ -146,6 +176,7 @@ const getChatMessages = async (req, res) => {
     });
     res.json(messages);
   } catch (error) {
+    console.error('Error fetching chat messages:', error);
     res.status(500).json({ error: error.message });
   }
 };

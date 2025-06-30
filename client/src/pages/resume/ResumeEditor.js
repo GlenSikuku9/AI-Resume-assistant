@@ -143,23 +143,25 @@ function ResumeEditor() {
       <Row className="g-4 justify-content-center align-items-stretch editor-row-flex">
         {/* Editor Panel */}
         <Col md={7} className="d-flex" style={{ position: 'relative' }}>
-          <Card className="editor-modern-card flex-grow-1">
+          <Card className="editor-modern-card flex-grow-1 d-flex flex-column position-relative">
             <div className="editor-modern-header d-flex align-items-center mb-3">
               <FaEdit className="me-2 text-primary" size={22} />
               <h4 className="mb-0">Resume Editor</h4>
             </div>
-            <div className="editor-modern-quill">
-              <ReactQuill
-                ref={quillRef}
-                theme="snow"
-                value={content}
-                onChange={setContent}
-                onChangeSelection={handleSelectionChange}
-                style={{ height: 'calc(60vh - 60px)' }}
-                modules={quillModules}
-              />
+            <div className="editor-scrollable-content flex-grow-1 d-flex flex-column">
+              <div className="editor-modern-quill flex-grow-1 d-flex flex-column">
+                <ReactQuill
+                  ref={quillRef}
+                  theme="snow"
+                  value={content}
+                  onChange={setContent}
+                  onChangeSelection={handleSelectionChange}
+                  modules={quillModules}
+                  style={{ height: '100%' }}
+                />
+              </div>
             </div>
-            <div className="d-flex justify-content-end gap-2 mt-3">
+            <div className="editor-action-buttons d-flex justify-content-end gap-2 p-3">
               <Button
                 variant="outline-secondary"
                 onClick={() => navigate('/profile-form')}
