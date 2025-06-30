@@ -103,8 +103,17 @@ function ResumeEditor() {
   // Export as PDF
   const handleExport = () => {
     const element = document.createElement('div');
-    element.innerHTML = content;
-    
+    // Inject CSS to prevent page breaks inside words/elements
+    const pdfStyles = `
+      <style>
+        .ql-editor, .ql-editor * {
+          page-break-inside: avoid;
+          break-inside: avoid;
+          word-break: break-word;
+        }
+      </style>
+    `;
+    element.innerHTML = `${pdfStyles}<div class='ql-editor'>${content}</div>`;
     const opt = {
       margin: 1,
       filename: `${resume.jobDescription?.title || 'resume'}.pdf`,
@@ -112,7 +121,6 @@ function ResumeEditor() {
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-
     html2pdf().set(opt).from(element).save();
   };
 
@@ -157,12 +165,6 @@ function ResumeEditor() {
               </div>
             </div>
             <div className="editor-action-buttons d-flex justify-content-end gap-2 p-3">
-              <Button
-                variant="outline-secondary"
-                onClick={() => navigate('/profile-form')}
-              >
-                Back
-              </Button>
               <Button
                 variant="outline-primary"
                 onClick={handleSave}
@@ -229,7 +231,7 @@ function ResumeEditor() {
         </Modal.Header>
         <Modal.Body>
           <div style={{ minHeight: '60vh', background: '#fff', padding: 24 }}>
-            <div dangerouslySetInnerHTML={{ __html: content }} />
+            <div className="ql-editor" dangerouslySetInnerHTML={{ __html: content }} />
           </div>
         </Modal.Body>
         <Modal.Footer>

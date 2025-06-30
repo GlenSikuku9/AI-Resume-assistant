@@ -173,12 +173,6 @@ function JobForm() {
 
           <div className="job-form-actions">
             <Button
-              variant="outline-secondary"
-              onClick={() => navigate('/templates')}
-            >
-              Back
-            </Button>
-            <Button
               variant="primary"
               type="submit"
               disabled={loading}

@@ -30,7 +30,7 @@ function ProfileForm() {
     field: '',
     startDate: '',
     endDate: '',
-    gpa: '',
+    grade: '',
     achievements: ''
   }]);
 
@@ -97,7 +97,7 @@ function ProfileForm() {
       field: '',
       startDate: '',
       endDate: '',
-      gpa: '',
+      grade: '',
       achievements: ''
     }]);
   };
@@ -507,13 +507,13 @@ function ProfileForm() {
                 <Row>
                   <Col md={4}>
                     <Form.Group className="mb-3">
-                      <Form.Label>GPA (Optional)</Form.Label>
+                      <Form.Label>Grade (Optional)</Form.Label>
                       <Form.Control
                         type="text"
-                        name="gpa"
-                        value={edu.gpa}
+                        name="grade"
+                        value={edu.grade}
                         onChange={(e) => handleEducationChange(index, e)}
-                        placeholder="e.g., 3.8/4.0"
+                        placeholder="e.g., A, B, First Class"
                       />
                     </Form.Group>
                   </Col>
@@ -608,12 +608,6 @@ function ProfileForm() {
           </Card>
 
           <div className="profile-form-actions">
-            <Button
-              variant="outline-secondary"
-              onClick={() => navigate('/job-form')}
-            >
-              Back
-            </Button>
             <Button
               variant="primary"
               type="submit"
