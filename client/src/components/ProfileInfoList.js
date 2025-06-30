@@ -288,7 +288,7 @@ function ProfileInfoList() {
                       <br />
                       <small className="text-muted">
                         {edu.startDate} - {edu.endDate || 'Present'}
-                        {edu.gpa && ` | GPA: ${edu.gpa}`}
+                        {edu.grade && ` | Grade: ${edu.grade}`}
                       </small>
                     </div>
                   ))}

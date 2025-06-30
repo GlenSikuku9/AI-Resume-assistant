@@ -160,6 +160,9 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
               {isLoading ? 'Sending...' : 'Send'}
             </Button>
           </div>
+          <div className="resume-disclaimer" style={{ fontSize: '0.85em', color: '#ff9800', marginTop: 10, textAlign: 'center' }}>
+            The AI may occasionally produce inaccurate or incomplete suggestions. Please review all content before using it in applications.
+          </div>
         </Form>
       </div>
     </Card>
