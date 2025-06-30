@@ -1,7 +1,7 @@
 import express from 'express';
 import admin from 'firebase-admin';
 import { isAdmin } from '../middleware/admin.js';
-import { getJobSeekerAnalytics, getAllUsers, deleteUser, getTotalResumes } from '../controllers/adminController.js';
+import { getAdminAnalytics, getAllUsers, deleteUser, getTotalResumes, incrementPDFDownloads, incrementResumesCreated, incrementApiCalls, incrementTemplateUsage } from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -84,7 +84,7 @@ router.put('/settings', isAdmin, async (req, res) => {
 });
 
 // Get Job Seeker Analytics (new endpoint)
-router.get('/job-seeker-analytics', isAdmin, getJobSeekerAnalytics);
+router.get('/admin-analytics', isAdmin, getAdminAnalytics);
 
 // List all users
 router.get('/users', isAdmin, getAllUsers);
@@ -94,5 +94,17 @@ router.delete('/users/:userId', isAdmin, deleteUser);
 
 // Get total resumes
 router.get('/total-resumes', getTotalResumes);
+
+// Increment PDF Downloads
+router.post('/increment-pdf-downloads', incrementPDFDownloads);
+
+// Increment Resumes Created
+router.post('/increment-resumes-created', incrementResumesCreated);
+
+// Increment API Calls (AI Chat Send)
+router.post('/increment-api-calls', incrementApiCalls);
+
+// Increment Template Usage
+router.post('/increment-template-usage', incrementTemplateUsage);
 
 export default router; 

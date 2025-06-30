@@ -73,10 +73,10 @@ const updateSettings = async (req, res) => {
   }
 };
 
-const getJobSeekerAnalytics = async (req, res) => {
+const getAdminAnalytics = async (req, res) => {
   try {
     const analyticsSnapshot = await admin.firestore()
-      .collection('JobSeekerAnalytics')
+      .collection('Admin')
       .get();
 
     let totalResumesCreated = 0;
@@ -164,12 +164,70 @@ export const getTotalResumes = async (req, res) => {
   }
 };
 
+// Increment PDF Downloads
+export const incrementPDFDownloads = async (req, res) => {
+  try {
+    const docRef = admin.firestore().collection('Admin').doc('main');
+    await docRef.set({
+      totalPDFDownloads: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    res.json({ message: 'PDF download count incremented' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Increment Resumes Created
+export const incrementResumesCreated = async (req, res) => {
+  try {
+    const docRef = admin.firestore().collection('Admin').doc('main');
+    await docRef.set({
+      totalResumesCreated: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    res.json({ message: 'Resumes created count incremented' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Increment API Calls (AI Chat Send)
+export const incrementApiCalls = async (req, res) => {
+  try {
+    const docRef = admin.firestore().collection('Admin').doc('main');
+    await docRef.set({
+      totalApiCalls: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    res.json({ message: 'API call count incremented' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Increment Template Usage
+export const incrementTemplateUsage = async (req, res) => {
+  try {
+    const { templateId } = req.body;
+    if (!templateId) return res.status(400).json({ error: 'templateId is required' });
+    const docRef = admin.firestore().collection('Admin').doc('main');
+    await docRef.set({
+      [`templateUsageCount.${templateId}`]: admin.firestore.FieldValue.increment(1),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    res.json({ message: 'Template usage incremented' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getApiUsage,
   getPerformanceMetrics,
   getUserStats,
   updateSettings,
-  getJobSeekerAnalytics,
+  getAdminAnalytics,
   getAllUsers,
   deleteUser
 }; 

@@ -7,7 +7,7 @@ const db = admin.firestore();
 const sampleAnalytics = {
   userId: 'sample-user-id',
   totalResumesCreated: 5,
-  totalApiCalls: 120,
+  totalApiCalls: 120 ,
   totalPDFDownloads: 15,
   totalAITokensUsed: 3500,
   templateUsageCount: {
@@ -20,15 +20,15 @@ const sampleAnalytics = {
   updatedAt: admin.firestore.FieldValue.serverTimestamp()
 };
 
-async function seedJobSeekerAnalytics() {
+async function seedAdminAnalytics() {
   try {
-    const docRef = await db.collection('JobSeekerAnalytics').add(sampleAnalytics);
-    console.log(`✅ JobSeekerAnalytics seeded with ID: ${docRef.id}`);
+    const docRef = await db.collection('Admin').add(sampleAnalytics);
+    console.log(`✅ Admin analytics seeded with ID: ${docRef.id}`);
   } catch (err) {
-    console.error('❌ Failed to seed JobSeekerAnalytics:', err);
+    console.error('❌ Failed to seed Admin analytics:', err);
   }
 }
 
 // Run the seeding function
-console.log('🌱 Starting JobSeekerAnalytics seeding...');
-seedJobSeekerAnalytics(); 
+console.log('🌱 Starting Admin analytics seeding...');
+seedAdminAnalytics(); 
