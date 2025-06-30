@@ -219,14 +219,6 @@ function ResumeEditor() {
             selection={selection}
             setSelection={setSelection}
             quillRef={quillRef}
-            onReplaceReferencedText={(aiContent) => {
-              // Replace the referenced text in the editor with the AI's response
-              const quill = quillRef.current.getEditor();
-              if (selection && selection.length > 0) {
-                quill.deleteText(selection.index, selection.length);
-                quill.clipboard.dangerouslyPasteHTML(selection.index, aiContent || '');
-              }
-            }}
           />
         </Col>
       </Row>

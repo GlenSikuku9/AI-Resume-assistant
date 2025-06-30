@@ -3,7 +3,8 @@ import { Button, Form, Card, Alert, InputGroup } from 'react-bootstrap';
 import { FaPaperPlane, FaRobot, FaUser } from 'react-icons/fa';
 import resumeEditorService from '../../services/resumeEditorService';
 import "./ResumeEditor.css";
-const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, selection, setSelection, quillRef, onReplaceReferencedText }) => {
+
+const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, selection, setSelection, quillRef }) => {
   const [chatMessages, setChatMessages] = useState([]);
   const [userMessage, setUserMessage] = useState('');
   const [chatError, setChatError] = useState('');
@@ -51,10 +52,6 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
         { role: 'user', content: userMessage, referenced: referencedHtml, timestamp: new Date().toISOString() },
         { role: 'ai', content: response.content || '', timestamp: new Date().toISOString() }
       ]));
-      // Replace the referenced text in the editor with the AI's response
-      if (onReplaceReferencedText) {
-        onReplaceReferencedText(response.text || response.content || '');
-      }
       // Only clear referencedHtml after successful response
       setReferencedHtml('');
     } catch (error) {
@@ -62,6 +59,17 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
       console.error('AI chat error:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Utility to replace the first occurrence of referenced text in Quill with AI HTML
+  const replaceReferencedInQuill = (quill, referenced, aiHtml) => {
+    if (!quill || !referenced) return;
+    const editorText = quill.getText();
+    const index = editorText.indexOf(referenced);
+    if (index !== -1) {
+      quill.deleteText(index, referenced.length);
+      quill.clipboard.dangerouslyPasteHTML(index, aiHtml);
     }
   };
 
@@ -76,8 +84,45 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
           {chatError && (
             <Alert variant="info" className="py-1 px-2 mb-2">{chatError}</Alert>
           )}
+          {chatMessages.map((msg, idx) => (
+            <div key={msg.id || idx} className={`ai-chat-bubble ai-chat-bubble-${msg.role} mb-2`}>
+              <span className="fw-bold">{msg.role === 'user' ? 'You' : 'AI'}:</span>
+              {msg.role === 'user' && (
+                <>
+                  {msg.instruction && (
+                    <div style={{ fontSize: '0.98em', marginBottom: 2 }}><strong>Instruction:</strong> {msg.instruction}</div>
+                  )}
+                  {msg.referenced && (
+                    <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4 }}>
+                      <span>Referenced:</span>
+                      <div>{msg.referenced}</div>
+                    </div>
+                  )}
+                </>
+              )}
+              {msg.role === 'ai' && (
+                <>
+                  <span dangerouslySetInnerHTML={{ __html: msg.content }} />
+                  <Button
+                    size="sm"
+                    variant="outline-success"
+                    className="ms-2"
+                    style={{ verticalAlign: 'middle' }}
+                    disabled={!quillRef?.current}
+                    onClick={() => {
+                      const quill = quillRef.current.getEditor();
+                      replaceReferencedInQuill(quill, msg.referenced, msg.content || '');
+                    }}
+                  >
+                    Replace
+                  </Button>
+                </>
+              )}
+            </div>
+          ))}
+          <div ref={chatEndRef} />
           {referencedHtml && (
-            <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4, display: 'flex', alignItems: 'center' }}>
+            <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginTop: 8, display: 'flex', alignItems: 'center' }}>
               <span>Referenced:</span>
               <div style={{ marginLeft: 6, marginRight: 6, flex: 1 }}>{referencedHtml}</div>
               <button
@@ -97,28 +142,6 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
               </button>
             </div>
           )}
-          {chatMessages.map((msg, idx) => (
-            <div key={msg.id || idx} className={`ai-chat-bubble ai-chat-bubble-${msg.role} mb-2`}>
-              <span className="fw-bold">{msg.role === 'user' ? 'You' : 'AI'}:</span>
-              {msg.role === 'user' && (
-                <>
-                  {msg.instruction && (
-                    <div style={{ fontSize: '0.98em', marginBottom: 2 }}><strong>Instruction:</strong> {msg.instruction}</div>
-                  )}
-                  {msg.referenced && (
-                    <div className="referenced-section" style={{ fontSize: '0.9em', color: '#888', marginBottom: 4 }}>
-                      <span>Referenced:</span>
-                      <div>{msg.referenced}</div>
-                    </div>
-                  )}
-                </>
-              )}
-              {msg.role === 'ai' && (
-                <span dangerouslySetInnerHTML={{ __html: msg.content }} />
-              )}
-            </div>
-          ))}
-          <div ref={chatEndRef} />
         </div>
         <Form onSubmit={e => { e.preventDefault(); handleAiChat(); }}>
           <Form.Group className="mb-2">
