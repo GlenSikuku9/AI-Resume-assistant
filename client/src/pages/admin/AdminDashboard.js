@@ -16,6 +16,7 @@ function AdminDashboard() {
   const [usersLoading, setUsersLoading] = useState(true);
   const [usersError, setUsersError] = useState('');
   const [deletingUserId, setDeletingUserId] = useState(null);
+  const [totalResumes, setTotalResumes] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,6 +26,11 @@ function AdminDashboard() {
         const headers = {
           'Authorization': `Bearer ${token}`
         };
+
+        // Fetch total resumes
+        const totalResumesResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/total-resumes`, { headers });
+        const totalResumesData = await totalResumesResponse.json();
+        setTotalResumes(totalResumesData.totalResumes || 0);
 
         // Fetch JobSeekerAnalytics
         const analyticsResponse = await fetch(`${process.env.REACT_APP_API_URL}/api/admin/job-seeker-analytics`, {
@@ -111,7 +117,7 @@ function AdminDashboard() {
           <Card className="metric-card">
             <Card.Body>
               <Card.Title>Total Resumes</Card.Title>
-              <h3>{analytics?.totalResumesCreated || 0}</h3>
+              <h3>{totalResumes}</h3>
               <p className="text-muted">Created resumes</p>
             </Card.Body>
           </Card>

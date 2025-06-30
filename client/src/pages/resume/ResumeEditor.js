@@ -32,7 +32,7 @@ const quillModules = {
       { 'align': 'right', title: 'Right Align' }
     ],
     [{ 'list': 'ordered', title: 'Numbered List' }, { 'list': 'bullet', title: 'Bullet List' }],
-    [{ 'link': true, title: 'Insert Link' }, { 'image': true, title: 'Insert Image' }],
+    [{ 'link': true, title: 'Insert Link' }],
     [{ 'clean': true, title: 'Remove Formatting' }]
   ]
 };
@@ -134,11 +134,6 @@ function ResumeEditor() {
 
   return (
     <Container fluid className="editor-no-bg px-0">
-      <div className="d-flex justify-content-end p-3">
-        <Button variant="secondary" onClick={() => navigate('/dashboard')}>
-          Go to Dashboard
-        </Button>
-      </div>
       <ResumeStepper currentStep={4} />
       <Row className="g-4 justify-content-center align-items-stretch editor-row-flex">
         {/* Editor Panel */}

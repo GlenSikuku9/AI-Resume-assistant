@@ -1,7 +1,7 @@
 import express from 'express';
 import admin from 'firebase-admin';
 import { isAdmin } from '../middleware/admin.js';
-import { getJobSeekerAnalytics, getAllUsers, deleteUser } from '../controllers/adminController.js';
+import { getJobSeekerAnalytics, getAllUsers, deleteUser, getTotalResumes } from '../controllers/adminController.js';
 
 const router = express.Router();
 
@@ -91,5 +91,8 @@ router.get('/users', isAdmin, getAllUsers);
 
 // Delete a user
 router.delete('/users/:userId', isAdmin, deleteUser);
+
+// Get total resumes
+router.get('/total-resumes', getTotalResumes);
 
 export default router; 

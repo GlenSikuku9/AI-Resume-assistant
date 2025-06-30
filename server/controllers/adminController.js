@@ -154,6 +154,16 @@ const deleteUser = async (req, res) => {
   }
 };
 
+export const getTotalResumes = async (req, res) => {
+  try {
+    const resumesSnap = await admin.firestore().collection('resumes').get();
+    const totalResumes = resumesSnap.size;
+    res.json({ totalResumes });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getApiUsage,
   getPerformanceMetrics,
