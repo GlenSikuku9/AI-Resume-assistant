@@ -15,6 +15,7 @@ import TemplateSelection from './pages/resume/TemplateSelection';
 import JobForm from './pages/resume/JobForm';
 import ProfileForm from './pages/resume/ProfileForm';
 import LandingPage from './pages/LandingPage';
+import AdminTemplates from './pages/admin/AdminTemplates';
 
 // Context
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -79,6 +80,11 @@ function App() {
               <Route path="/admin" element={
                 <AdminRoute>
                   <AdminDashboard />
+                </AdminRoute>
+              } />
+              <Route path="/admin/templates" element={
+                <AdminRoute>
+                  <AdminTemplates />
                 </AdminRoute>
               } />
             </Routes>

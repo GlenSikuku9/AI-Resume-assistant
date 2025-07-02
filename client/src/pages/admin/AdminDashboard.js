@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Card, Table, Alert } from 'react-bootstrap';
+import { Container, Row, Col, Card, Table, Alert, Button } from 'react-bootstrap';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminDashboard.css';
 import userService from '../../services/userService';
 import { getAuth } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
 function AdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
@@ -16,6 +17,7 @@ function AdminDashboard() {
   const [usersError, setUsersError] = useState('');
   const [deletingUserId, setDeletingUserId] = useState(null);
   const [totalResumes, setTotalResumes] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,6 +103,12 @@ function AdminDashboard() {
       {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
       <h2 className="dashboard-title mb-4">Admin Dashboard</h2>
+
+      <div className="mb-4 d-flex justify-content-end">
+        <Button variant="primary" onClick={() => navigate('/admin/templates')}>
+          Manage Templates
+        </Button>
+      </div>
 
       {/* Key Metrics */}
       <Row className="mb-4">
