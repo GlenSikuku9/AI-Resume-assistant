@@ -21,7 +21,6 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
       if (!resumeId) return;
       try {
         const messages = await resumeEditorService.fetchChatMessages(resumeId);
-        console.log('AIChat loaded messages:', messages);
         setChatMessages(messages);
       } catch (err) {
         setChatError('Failed to load chat history');
@@ -64,12 +63,46 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
 
   // Utility to replace the first occurrence of referenced text in Quill with AI HTML
   const replaceReferencedInQuill = (quill, referenced, aiHtml) => {
-    if (!quill || !referenced) return;
+    if (!quill) return;
+
+    // Try to get the last reference range from localStorage
+    const rangeStr = localStorage.getItem('lastReferenceRange');
+    let range = null;
+    if (rangeStr) {
+      try {
+        range = JSON.parse(rangeStr);
+      } catch {}
+    }
+
+    if (range && typeof range.index === 'number' && typeof range.length === 'number') {
+      quill.focus();
+      quill.deleteText(range.index, range.length);
+      quill.clipboard.dangerouslyPasteHTML(range.index, aiHtml);
+
+      // Move cursor to end of inserted content
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = aiHtml;
+      const insertedText = tempDiv.innerText || tempDiv.textContent || '';
+      quill.setSelection(range.index + insertedText.length, 0);
+      quill.scrollIntoView && quill.scrollIntoView();
+      return;
+    }
+
+    // Fallback: plain text search
     const editorText = quill.getText();
     const index = editorText.indexOf(referenced);
     if (index !== -1) {
+      quill.focus();
       quill.deleteText(index, referenced.length);
       quill.clipboard.dangerouslyPasteHTML(index, aiHtml);
+
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = aiHtml;
+      const insertedText = tempDiv.innerText || tempDiv.textContent || '';
+      quill.setSelection(index + insertedText.length, 0);
+      quill.scrollIntoView && quill.scrollIntoView();
+    } else {
+      alert('Referenced section not found in the editor.');
     }
   };
 
@@ -160,7 +193,7 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
               {isLoading ? 'Sending...' : 'Send'}
             </Button>
           </div>
-          <div className="resume-disclaimer" style={{ fontSize: '0.85em', color: '#ff9800', marginTop: 10, textAlign: 'center' }}>
+          <div className="resume-disclaimer" style={{ fontSize: '0.85em', color: '#fffff', marginTop: 10, textAlign: 'center' }}>
             The AI may occasionally produce inaccurate or incomplete suggestions. Please review all content before using it in applications.
           </div>
         </Form>
