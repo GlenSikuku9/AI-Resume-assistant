@@ -17,6 +17,8 @@ import AIChat from './AIChat';
 const Align = Quill.import('formats/align');
 Quill.register(Align, true);
 
+
+
 const quillModules = {
   toolbar: [
     [{ 'header': [1, 2, false] }],
@@ -197,6 +199,8 @@ function ResumeEditor() {
                       console.log('Referenced Text:', selectedText);
                       setReferencedHtml(selectedText);
                       setShowReferenceBtn(false);
+                      // Store the selection range in localStorage for robust replacement
+                      localStorage.setItem('lastReferenceRange', JSON.stringify(range));
                     }
                   }}
                 >

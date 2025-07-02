@@ -55,7 +55,6 @@ class ResumeEditorService {
 
   async fetchChatMessages(resumeId) {
     const token = await this.getAuthToken();
-    console.log('Fetching chat messages for resumeId:', resumeId);
     const response = await fetch(`${API_BASE_URL}/ai/chat-messages/${resumeId}`, {
       headers: {
         'Authorization': `Bearer ${token}`
@@ -66,7 +65,6 @@ class ResumeEditorService {
       throw new Error('Failed to fetch chat messages');
     }
     const data = await response.json();
-    console.log('Fetched chat messages:', data);
     return data;
   }
 
