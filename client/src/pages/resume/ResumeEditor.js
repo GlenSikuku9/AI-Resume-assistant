@@ -103,7 +103,12 @@ function ResumeEditor() {
   };
 
   // Export as PDF
-  const handleExport = () => {
+  const handleExport = async () => {
+    try {
+      await resumeEditorService.incrementPDFDownloads();
+    } catch (e) {
+      console.warn('Failed to increment PDF downloads:', e);
+    }
     const element = document.createElement('div');
     // Inject CSS to prevent page breaks inside words/elements
     const pdfStyles = `

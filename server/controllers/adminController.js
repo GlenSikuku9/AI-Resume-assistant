@@ -75,49 +75,27 @@ const updateSettings = async (req, res) => {
 
 const getAdminAnalytics = async (req, res) => {
   try {
-    const analyticsSnapshot = await admin.firestore()
+    const mainDoc = await admin.firestore()
       .collection('Admin')
+      .doc('main')
       .get();
-
-    let totalResumesCreated = 0;
-    let totalApiCalls = 0;
-    let totalPDFDownloads = 0;
-    let totalAITokensUsed = 0;
-    let templateUsageCount = {};
+    const data = mainDoc.exists ? mainDoc.data() : {};
+    const templateUsageCount = data.templateUsageCount || {};
     let mostUsedTemplate = null;
     let mostUsedTemplateCount = 0;
-    const userAnalytics = [];
-
-    analyticsSnapshot.forEach(doc => {
-      const data = doc.data();
-      userAnalytics.push({ id: doc.id, ...data });
-      totalResumesCreated += data.totalResumesCreated || 0;
-      totalApiCalls += data.totalApiCalls || 0;
-      totalPDFDownloads += data.totalPDFDownloads || 0;
-      totalAITokensUsed += data.totalAITokensUsed || 0;
-      if (data.templateUsageCount) {
-        Object.entries(data.templateUsageCount).forEach(([templateId, count]) => {
-          templateUsageCount[templateId] = (templateUsageCount[templateId] || 0) + count;
-        });
-      }
-    });
-
-    // Find most used template
     Object.entries(templateUsageCount).forEach(([templateId, count]) => {
       if (count > mostUsedTemplateCount) {
         mostUsedTemplate = templateId;
         mostUsedTemplateCount = count;
       }
     });
-
     res.json({
-      totalResumesCreated,
-      totalApiCalls,
-      totalPDFDownloads,
-      totalAITokensUsed,
+      totalResumesCreated: data.totalResumesCreated || 0,
+      totalApiCalls: data.totalApiCalls || 0,
+      totalPDFDownloads: data.totalPDFDownloads || 0,
       templateUsageCount,
       mostUsedTemplate,
-      userAnalytics
+      userAnalytics: []
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -213,7 +191,7 @@ export const incrementTemplateUsage = async (req, res) => {
     if (!templateId) return res.status(400).json({ error: 'templateId is required' });
     const docRef = admin.firestore().collection('Admin').doc('main');
     await docRef.set({
-      [`templateUsageCount.${templateId}`]: admin.firestore.FieldValue.increment(1),
+      [`${templateId}`]: admin.firestore.FieldValue.increment(1),
       updatedAt: admin.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
     res.json({ message: 'Template usage incremented' });

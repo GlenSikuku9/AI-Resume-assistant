@@ -87,6 +87,50 @@ class ResumeEditorService {
       throw error;
     }
   }
+
+  async incrementPDFDownloads() {
+    const token = await this.getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/admin/increment-pdf-downloads`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to increment PDF downloads');
+    }
+    return response.json();
+  }
+
+  async incrementApiCalls() {
+    const token = await this.getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/admin/increment-api-calls`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to increment API calls');
+    }
+    return response.json();
+  }
+
+  async incrementTemplateUsage(templateId) {
+    const token = await this.getAuthToken();
+    const response = await fetch(`${API_BASE_URL}/admin/increment-template-usage`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ templateId })
+    });
+    if (!response.ok) {
+      throw new Error('Failed to increment template usage');
+    }
+    return response.json();
+  }
 }
 
 export default new ResumeEditorService();
