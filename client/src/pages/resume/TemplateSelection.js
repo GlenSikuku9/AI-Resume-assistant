@@ -5,6 +5,7 @@ import { getFirestore, collection, getDocs } from 'firebase/firestore';
 import { useAuth } from '../../contexts/AuthContext';
 import { FaEye } from 'react-icons/fa'; // eye icon for preview
 import './TemplateSelection.css';
+import resumeEditorService from '../../services/resumeEditorService';
 
 function TemplateSelection() {
   const [templates, setTemplates] = useState([]);
@@ -45,8 +46,13 @@ function TemplateSelection() {
     setSelectedTemplate(template);
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (selectedTemplate) {
+      try {
+        await resumeEditorService.incrementTemplateUsage(selectedTemplate.id);
+      } catch (e) {
+        console.warn('Failed to increment template usage:', e);
+      }
       sessionStorage.setItem('selectedTemplate', JSON.stringify(selectedTemplate));
       navigate('/job-form');
     }

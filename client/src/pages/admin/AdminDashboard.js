@@ -5,6 +5,7 @@ import './AdminDashboard.css';
 import userService from '../../services/userService';
 import { getAuth } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
+import { getFirestore, doc, updateDoc } from 'firebase/firestore';
 
 function AdminDashboard() {
   const [analytics, setAnalytics] = useState(null);
@@ -17,6 +18,8 @@ function AdminDashboard() {
   const [usersError, setUsersError] = useState('');
   const [deletingUserId, setDeletingUserId] = useState(null);
   const [totalResumes, setTotalResumes] = useState(0);
+  const [makingAdminId, setMakingAdminId] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -94,6 +97,22 @@ function AdminDashboard() {
     }
   };
 
+  const handleMakeAdmin = async (userId, userName) => {
+    setMakingAdminId(userId);
+    try {
+      const db = getFirestore();
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { isAdmin: true });
+      setUsers(users => users.map(u => u.id === userId ? { ...u, isAdmin: true } : u));
+      setSuccessMessage(`"${userName || 'User'}" is now an admin`);
+      setTimeout(() => setSuccessMessage(''), 4000);
+    } catch (err) {
+      alert('Failed to make user admin: ' + err.message);
+    } finally {
+      setMakingAdminId(null);
+    }
+  };
+
   if (loading) {
     return <div className="text-center">Loading...</div>;
   }
@@ -104,11 +123,7 @@ function AdminDashboard() {
 
       <h2 className="dashboard-title mb-4">Admin Dashboard</h2>
 
-      <div className="mb-4 d-flex justify-content-end">
-        <Button variant="primary" onClick={() => navigate('/admin/templates')}>
-          Manage Templates
-        </Button>
-      </div>
+      {successMessage && <Alert variant="success" className="mb-3">{successMessage}</Alert>}
 
       {/* Key Metrics */}
       <Row className="mb-4">
@@ -133,9 +148,9 @@ function AdminDashboard() {
         <Col md={3}>
           <Card className="metric-card">
             <Card.Body>
-              <Card.Title>AI Tokens Used</Card.Title>
-              <h3>{analytics?.totalAITokensUsed || 0}</h3>
-              <p className="text-muted">Total AI tokens</p>
+              <Card.Title>API Calls</Card.Title>
+              <h3>{analytics?.totalApiCalls || 0}</h3>
+              <p className="text-muted">Total API calls</p>
             </Card.Body>
           </Card>
         </Col>
@@ -166,6 +181,11 @@ function AdminDashboard() {
               <div className="mt-3">
                 <strong>Most Used Template: </strong>
                 {templateNames[analytics?.mostUsedTemplate] || analytics?.mostUsedTemplate || 'N/A'}
+              </div>
+              <div className="mt-4 d-flex justify-content-end">
+                <Button variant="primary" onClick={() => navigate('/admin/templates')}>
+                  Manage Templates
+                </Button>
               </div>
             </Card.Body>
           </Card>
@@ -198,6 +218,13 @@ function AdminDashboard() {
                     <td>{user.isAdmin ? 'Yes' : 'No'}</td>
                     <td>{user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}</td>
                     <td>
+                      <button
+                        className="btn btn-primary btn-sm me-2"
+                        onClick={() => handleMakeAdmin(user.id, user.name)}
+                        disabled={user.isAdmin || makingAdminId === user.id || user.id === currentUser.uid}
+                      >
+                        {makingAdminId === user.id ? 'Making Admin...' : 'Make Admin'}
+                      </button>
                       <button
                         className="btn btn-danger btn-sm"
                         onClick={() => handleDeleteUser(user.id)}

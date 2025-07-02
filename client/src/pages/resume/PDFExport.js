@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Modal, Spinner } from 'react-bootstrap';
 import html2pdf from 'html2pdf.js';
+import resumeEditorService from '../../services/resumeEditorService';
 
 const PDFExport = ({ resumeContent, templateId }) => {
   const [isExporting, setIsExporting] = useState(false);
@@ -36,8 +37,13 @@ const PDFExport = ({ resumeContent, templateId }) => {
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (pdfUrl) {
+      try {
+        await resumeEditorService.incrementPDFDownloads();
+      } catch (e) {
+        console.warn('Failed to increment PDF downloads:', e);
+      }
       const link = document.createElement('a');
       link.href = pdfUrl;
       link.download = 'resume.pdf';

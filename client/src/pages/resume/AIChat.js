@@ -39,6 +39,11 @@ const AIChat = ({ resumeId, currentUser, referencedHtml, setReferencedHtml, sele
         return;
       }
       setIsLoading(true);
+      try {
+        await resumeEditorService.incrementApiCalls();
+      } catch (e) {
+        console.warn('Failed to increment API calls:', e);
+      }
       const response = await resumeEditorService.editSectionAI({
         userId: currentUser.uid,
         resumeId,
