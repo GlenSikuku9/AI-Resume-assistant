@@ -10,7 +10,7 @@ function JobInfoList() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedJob, setSelectedJob] = useState(null);
-  const [modalMode, setModalMode] = useState('view'); // 'view', 'edit'
+  const [modalMode, setModalMode] = useState('view'); // view, edit
   const [formData, setFormData] = useState({
     title: '',
     company: '',
