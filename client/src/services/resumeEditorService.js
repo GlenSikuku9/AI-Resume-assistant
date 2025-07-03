@@ -134,6 +134,3 @@ class ResumeEditorService {
 }
 
 export default new ResumeEditorService();
-
-// Optionally, you can add a utility for exporting as PDF if you want to centralize it
-// export function exportResumeAsPDF(content, filename) { ... } 

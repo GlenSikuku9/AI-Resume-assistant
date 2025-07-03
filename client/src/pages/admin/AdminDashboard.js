@@ -122,7 +122,6 @@ function AdminDashboard() {
       {error && <Alert variant="danger" className="mb-4">{error}</Alert>}
 
       <h2 className="dashboard-title mb-4">Admin Dashboard</h2>
-
       {successMessage && <Alert variant="success" className="mb-3">{successMessage}</Alert>}
 
       {/* Key Metrics */}

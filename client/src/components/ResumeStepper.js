@@ -2,7 +2,7 @@ import React from 'react';
 import './ResumeStepper.css';
 
 const steps = [
-  { label: 'Create Resume' },
+  { label: 'Choose Template' },
   { label: 'Job Description' },
   { label: 'Profile' },
   { label: 'Editor' }

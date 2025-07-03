@@ -10,7 +10,7 @@ function ProfileInfoList() {
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
-  const [modalMode, setModalMode] = useState('view'); // 'view', 'edit'
+  const [modalMode, setModalMode] = useState('view'); // view,edit
   const [formData, setFormData] = useState({
     personalInfo: {
       fullName: '',
