@@ -80,7 +80,16 @@ const getAdminAnalytics = async (req, res) => {
       .doc('main')
       .get();
     const data = mainDoc.exists ? mainDoc.data() : {};
-    const templateUsageCount = data.templateUsageCount || {};
+    // Build templateUsageCount from top-level fields that are numbers and not known analytics fields
+    const templateUsageCount = {};
+    Object.entries(data).forEach(([key, value]) => {
+      if (
+        typeof value === 'number' &&
+        !['totalApiCalls', 'totalPDFDownloads', 'totalResumesCreated', 'updatedAt'].includes(key)
+      ) {
+        templateUsageCount[key] = value;
+      }
+    });
     let mostUsedTemplate = null;
     let mostUsedTemplateCount = 0;
     Object.entries(templateUsageCount).forEach(([templateId, count]) => {
