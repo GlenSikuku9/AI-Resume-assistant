@@ -6,7 +6,8 @@ import {
   createResume,
   updateResume,
   deleteResume,
-  getResumeById
+  getResumeById,
+  getResumeWithChats
 } from '../controllers/resumeController.js';
 
 const router = express.Router();
@@ -50,5 +51,8 @@ router.delete('/:resumeId', authenticateUser, deleteResume);
 
 // Get resume by ID
 router.get('/:resumeId', authenticateUser, getResumeById);
+
+// New: Get resume and its chats by resumeId
+router.get('/:resumeId/details', authenticateUser, getResumeWithChats);
 
 export default router; 

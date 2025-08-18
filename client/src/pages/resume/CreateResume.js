@@ -1,4 +1,4 @@
-import ResumeStepper from '../components/ResumeStepper';
+import ResumeStepper from '../../components/resume/ResumeStepper';
 
 function CreateResume() {
   return (

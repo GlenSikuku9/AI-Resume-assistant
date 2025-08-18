@@ -12,7 +12,7 @@ import {
 } from '@mui/material';
 import axios from 'axios';
 
-// Import step components
+// Import step components (assuming they live under pages/resume now or components)
 import JobDescriptionForm from './JobDescriptionForm';
 import UserInfoForm from './UserInfoForm';
 import ResumePreview from './ResumePreview';
