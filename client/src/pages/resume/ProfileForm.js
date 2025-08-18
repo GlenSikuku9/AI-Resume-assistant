@@ -5,7 +5,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { getAuth } from 'firebase/auth';
 import { FaPlus, FaTrash } from 'react-icons/fa';
 import jobSeekerInfoService from '../../services/profileInfoService';
-import ResumeStepper from '../../components/ResumeStepper';
+import ResumeStepper from '../../components/resume/ResumeStepper';
 import './ProfileForm.css';
 
 function ProfileForm() {

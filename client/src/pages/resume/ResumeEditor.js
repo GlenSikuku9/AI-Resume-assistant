@@ -8,7 +8,7 @@ import 'react-quill/dist/quill.snow.css';
 import html2pdf from 'html2pdf.js';
 import { FaDownload, FaSave, FaEdit, FaRobot } from 'react-icons/fa';
 import './ResumeEditor.css';
-import ResumeStepper from '../../components/ResumeStepper';
+import ResumeStepper from '../../components/resume/ResumeStepper';
 import Modal from 'react-bootstrap/Modal';
 import resumeEditorService from '../../services/resumeEditorService';
 import "./ResumeEditor.css";

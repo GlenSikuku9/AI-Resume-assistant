@@ -3,7 +3,7 @@ import { Form, Button, Card, Alert, Container, Row, Col } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import jobDescriptionService from '../../services/jobInfoService';
-import ResumeStepper from '../../components/ResumeStepper';
+import ResumeStepper from '../../components/resume/ResumeStepper';
 import './JobForm.css';
 
 function JobForm() {

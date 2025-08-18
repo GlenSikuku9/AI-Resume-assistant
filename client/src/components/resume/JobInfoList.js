@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge, Modal, Form, Alert, Spinner } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaEye } from 'react-icons/fa';
-import jobDescriptionService from '../services/jobInfoService';
+import jobDescriptionService from '../../services/jobInfoService';
 import './JobInfoList.css';
 
 function JobInfoList() {

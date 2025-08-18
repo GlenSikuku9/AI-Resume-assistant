@@ -5,20 +5,20 @@ import 'react-toastify/dist/ReactToastify.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // Components
-import Navigation from './components/Navigation';
-import Login from './pages/auth/Login';
-import Register from './pages/auth/Register';
-import Dashboard from './pages/admin/Dashboard';
-import ResumeEditor from './pages/resume/ResumeEditor';
-import AdminDashboard from './pages/admin/AdminDashboard';
-import TemplateSelection from './pages/resume/TemplateSelection';
-import JobForm from './pages/resume/JobForm';
-import ProfileForm from './pages/resume/ProfileForm';
-import LandingPage from './pages/LandingPage';
-import AdminTemplates from './pages/admin/AdminTemplates';
+import Navigation from '../components/navigation/Navigation';
+import Login from '../pages/auth/Login';
+import Register from '../pages/auth/Register';
+import Dashboard from '../pages/user/Dashboard';
+import ResumeEditor from '../pages/resume/ResumeEditor';
+import AdminDashboard from '../pages/admin/AdminDashboard';
+import TemplateSelection from '../pages/resume/TemplateSelection';
+import JobForm from '../pages/resume/JobForm';
+import ProfileForm from '../pages/resume/ProfileForm';
+import LandingPage from '../pages/landing/LandingPage';
+import AdminTemplates from '../pages/admin/AdminTemplates';
 
 // Context
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {

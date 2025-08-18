@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Badge, Modal, Form, Alert, Spinner, Row, Col } from 'react-bootstrap';
 import { FaEdit, FaTrash, FaEye, FaPlus, FaGraduationCap, FaBriefcase, FaUser } from 'react-icons/fa';
-import jobSeekerInfoService from '../services/profileInfoService';
+import jobSeekerInfoService from '../../services/profileInfoService';
 import './ProfileInfoList.css';
 
 function ProfileInfoList() {
