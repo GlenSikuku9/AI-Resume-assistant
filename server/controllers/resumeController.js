@@ -134,11 +134,42 @@ const getResumeById = async (req, res) => {
   }
 };
 
+// New: Get resume and its chats by resumeId
+const getResumeWithChats = async (req, res) => {
+  try {
+    const { resumeId } = req.params;
+
+    // Fetch resume
+    const resumeDoc = await admin.firestore().collection('resumes').doc(resumeId).get();
+    if (!resumeDoc.exists) {
+      return res.status(404).json({ error: 'Resume not found' });
+    }
+    const resume = { id: resumeDoc.id, ...resumeDoc.data() };
+
+    // Fetch chats for this resume
+    const chatsSnapshot = await admin.firestore()
+      .collection('aiChats')
+      .where('resumeId', '==', resumeId)
+      .orderBy('timestamp', 'asc')
+      .get();
+
+    const chats = [];
+    chatsSnapshot.forEach((chatDoc) => {
+      chats.push({ id: chatDoc.id, ...chatDoc.data() });
+    });
+
+    res.json({ resume, chats });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 export {
   getTemplates,
   getUserResumes,
   createResume,
   updateResume,
   deleteResume,
-  getResumeById
+  getResumeById,
+  getResumeWithChats
 }; 
