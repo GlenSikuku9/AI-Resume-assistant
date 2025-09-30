@@ -1,4 +1,4 @@
 .env
 
 # Ignore Firebase service account
-config/ai-resume-assistant-3ca9c-firebase-adminsdk-fbsvc-6eb5ebffdc.json
+/config/*.json
