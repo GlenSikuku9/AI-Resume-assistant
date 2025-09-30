@@ -11,7 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const initializeFirebase = () => {
   if (!isInitialized) {
-    const serviceAccountPath = path.join(__dirname, 'ai-resume-assistant-3ca9c-firebase-adminsdk-fbsvc-6eb5ebffdc.json');
+    const serviceAccountPath = path.join(__dirname, 'ai-resume-assistant-3ca9c-firebase-adminsdk-fbsvc-8e1f5e49db.json');
     const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf-8'));
 
     admin.initializeApp({
