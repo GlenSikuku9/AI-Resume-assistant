@@ -7,7 +7,7 @@ An intelligent resume creation and editing platform powered by Together AI's Lla
 - User authentication with Firebase  
 - ATS-compliant resume templates  
 - AI-powered resume generation and editing  
-- Real-time collaborative editing interface  
+- User friendly editing interface  
 - Version tracking and auto-save  
 - PDF export functionality  
 - Responsive design for all devices  
