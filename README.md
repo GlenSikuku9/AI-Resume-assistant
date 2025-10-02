@@ -77,5 +77,6 @@ The application will be available at `http://localhost:3000`
 9.Template Management dashboard
 ![template dashboard](./screenshots/templatedashboard.png)
 ## License
-ISC
+## License
+This project is licensed under the ISC License - see the [LICENSE](./License.md) file for details.
 
