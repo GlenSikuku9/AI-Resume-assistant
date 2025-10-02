@@ -49,6 +49,33 @@ The application will be available at `http://localhost:3000`
 * Implement caching for frequent requests
 * Optimize token usage by sending only modified sections
 
+## Screenshots 
+1.Login Page
+![Login Page](./screenshots/login.png)
+
+2.Landing Page 
+![landing page](./screenshots/landingpage.png)
+
+3.Template Selection page
+![template selection page](./screenshots/templateSelection.png)
+
+4.Job Description page
+![job description page](./screenshots/jobdescription.png)
+
+5.User Information page
+![user infomartion page](./screenshots/userinfo.png)
+
+6.User dashboard page
+![user dashboard](./screenshots/userdashboard.png)
+
+7.Resume Editor page
+![resume editor](./screenshots/resumeeditor.png)
+
+8.Admin Dashboard page
+![admin dashboard](./screenshots/admindashboard.png)
+
+9.Template Management dashboard
+![template dashboard](./screenshots/templatedashboard.png)
 ## License
 ISC
 
