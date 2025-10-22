@@ -6,6 +6,7 @@ import { getFirestore, doc, getDoc, updateDoc } from 'firebase/firestore';
 import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import html2pdf from 'html2pdf.js';
+import DOMPurify from 'dompurify';
 import { FaDownload, FaSave, FaEdit, FaRobot } from 'react-icons/fa';
 import './ResumeEditor.css';
 import ResumeStepper from '../../components/resume/ResumeStepper';
@@ -88,10 +89,11 @@ function ResumeEditor() {
         timestamp: new Date().toISOString(),
         userId: currentUser.uid
       };
-      await resumeEditorService.saveResume(resumeId, content, version, currentUser.uid);
+      const cleanContent = DOMPurify.sanitize(content);
+      await resumeEditorService.saveResume(resumeId, cleanContent, version, currentUser.uid);
       setResume(prev => ({
         ...prev,
-        content,
+        content: cleanContent,
         versions: [...(prev.versions || []), version]
       }));
     } catch (error) {
@@ -240,7 +242,7 @@ function ResumeEditor() {
         </Modal.Header>
         <Modal.Body>
           <div style={{ minHeight: '60vh', background: '#fff', padding: 24 }}>
-            <div className="ql-editor" dangerouslySetInnerHTML={{ __html: content }} />
+            <div className="ql-editor" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />
           </div>
         </Modal.Body>
         <Modal.Footer>
