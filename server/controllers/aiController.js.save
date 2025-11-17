@@ -6,13 +6,13 @@ import {
 } from '../utils/aiHelpers.js';
 import { admin } from '../config/firebase.js';
 
-// Remove unwanted markers from AI responses
 const cleanAIResponse = (text) => {
-  if (!text) return '';
-  return text
-    .replace(/\[END FINAL RESPONSE\]/gi, '')  // remove END FINAL RESPONSE
-    .replace(/<\|end\|>/gi, '')              // remove <|end|> if present
-    .trim();
+	if(!text) return '';
+	return text
+		.replace(/\[END FINAL RESPONSE\]/gi,'')
+		.REPLACE(/<\|end\|>/gi,'')
+		.trim();
+
 };
 
 const generateResume = async (req, res) => {
@@ -39,9 +39,7 @@ const generateResume = async (req, res) => {
     // Prepare prompt for Together AI
     const prompt = `Create a professional 1-2 page resume based on the following information.\n\nJob Description: ${jobDescription}\nPersonal Information: ${JSON.stringify(personalInfo)}\n\nFormat the resume using this template structure and styling:\nTemplate Name: ${template.name}\nDescription: ${template.description}\nSections (in order): ${template.defaultOrder.join(', ')}\nSection Details: ${JSON.stringify(template.sections)}\nStyling: ${JSON.stringify(template.styling)}\n\nIMPORTANT: When formatting, use only Quill-compatible HTML tags and classes for styling. Do NOT use inline style attributes. Use tags such as <strong>, <em>, <u>, <ol>, <ul>, <li>, <h1>, <h2>, <h3>, <p>, and Quill classes like ql-align-center, ql-align-right, ql-size-large, etc. For font size, use <span class=\"ql-size-large\"> for section headings if needed, but DO NOT use ql-size-small for normal body text—use the default size for normal text. For alignment, use <p class=\"ql-align-center\">, <p class=\"ql-align-right\">, etc. Do not use style=\"...\" attributes. All visual styling (font, color, spacing, etc.) will be handled by the resume template's CSS. Only use HTML and classes that are supported by Quill.\n\nEnsure the resume is ATS-compliant and tailored to the job description, using the template's layout and style.\n\nKey characteristics for ATS compliance:\n- Optimize for relevant keywords from the job description\n- Use strong action verbs and success metrics\n- Prioritize quality experience over quantity\n- Use a clean, simple format with standard section headings\n- Avoid graphics, tables, or unusual formatting\n- Focus on good formatting and clarity.`;
 
-    let aiContent = await callTogetherAI(prompt, 5000, generateSystemPrompt);
-     aiContent=cleanAIResponse(aiContent);
-
+    const aiContent = await callTogetherAI(prompt, 5000, generateSystemPrompt);
     // Cache the response
     cacheResponse(cacheKey, aiContent);
 
@@ -121,8 +119,8 @@ const editSection = async (req, res) => {
     await admin.firestore().collection('aiChats').add(userChat);
 
     // Call AI
-    let data = await callTogetherAI(prompt, 5000, editSystemPrompt);
-     data=cleanAIResponse(data);
+    const data = await callTogetherAI(prompt, 5000, editSystemPrompt);
+
     // Save AI chat message
     const aiChat = {
       userId,

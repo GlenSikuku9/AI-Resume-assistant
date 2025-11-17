@@ -1,3 +1,6 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+
+
 /* Updated color variables */
 :root {
   --primary-blue: #1a73e8;
@@ -15,11 +18,8 @@
   overflow-x: hidden;
 }
 
-/* Import Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
-
 /* Hero Section */
-.hero-section {
+.hero-section { 
   padding: 100px 0;
   background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
   color: white;

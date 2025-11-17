@@ -33,13 +33,15 @@ app.use('/api/job-description', jobInfoRoutes);
 app.use('/api/job-seeker-info', profileInfoRoutes);
 app.use('/api/templates', templateRoutes);
 
+// Base route
+//app.get("/api", (req,res)=>{
+//  res.send("AI Resume Assistant backend");
+//});
+
 // Error handling middleware
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
-app.get("/api", (req,res)=>{
-  res.send("Ai resume assistant backend running");
 });
