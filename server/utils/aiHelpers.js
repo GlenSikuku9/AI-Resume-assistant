@@ -22,8 +22,7 @@ const sanitizeAIResponse = (content) => {
     .replace(/<think>[\s\S]*?<\/think>/gi, '')
     .replace(/<internal>[\s\S]*?<\/internal>/gi, '')
     .replace(/<debug>[\s\S]*?<\/debug>/gi, '')
-    .replace(/\[END FINAL RESPONSE\]/gi, '') // Remove Together AI "[END FINAL RESPONSE]" tags
-    .trim();
+.replace(/\[END FINAL RESPONSE\]/gi, '') 
 };
 
 // ===== Cache Layer =====
@@ -75,6 +74,7 @@ export const callTogetherAI = async (prompt, maxTokens, systemPrompt) => {
       { role: 'system', content: systemPrompt },
       { role: 'user', content: prompt }
     ],
+<<<<<<< HEAD
     model: 'ServiceNow-AI/Apriel-1.5-15b-Thinker', // ✅ Updated free model
     max_tokens: maxTokens,
     stream: true
