@@ -1,0 +1,36 @@
+# Secrets and environment files
+.env
+.env.*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+secrets/
+credentials/
+service-account*.json
+
+# Databases, dumps and logs
+*.sqlite
+*.db
+*.dump
+*.sql
+logs/
+
+# Generated/dependency folders
+node_modules/
+dist/
+build/
+coverage/
+.next/
+.cache/
+__pycache__/
+vendor/
+
+# Git internals
+.git/
+
+# Local editor/project settings
+.vscode/settings.json
